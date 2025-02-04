@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano de Carregamento</title>
+</head>
+<body>
+    <h1>Planos de Carregamento</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Data Início</th>
+                <th>Horário Início</th>
+                <th>Data Fim</th>
+                <th>Horário Fim</th>
+                <th>Planilha</th>
+                <th>Editar</th>
+                <th>Excluir</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plano in planos %}
+            <tr>
+                <td>{{ plano.data_inicio }}</td>
+                <td>{{ plano.horario_inicio }}</td>
+                <td>{{ plano.data_fim }}</td>
+                <td>{{ plano.horario_fim }}</td>
+                <td><a href="{{ plano.planilha.url }}" target="_blank">Ver Planilha</a></td>
+                <td>
+                    <a href="{% url 'plano_edit' plano.id %}">Editar</a>
+                </td>
+                <td>
+                    <a href="{% url 'plano_delete' plano.id %}">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'plano_add' %}">Adicionar Novo Plano</a>
+</body>
+</html>

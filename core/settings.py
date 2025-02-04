@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     # Apps
     'accounts',
+    'fila',
 ]
 
 MIDDLEWARE = [
@@ -60,7 +61,9 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',  # Diretório onde os templates serão armazenados
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -127,6 +130,11 @@ AUTH_USER_MODEL = 'accounts.User'
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Adicionando a configuração para servir os arquivos estáticos no modo de desenvolvimento
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Diretório onde seus arquivos estáticos ficam
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
