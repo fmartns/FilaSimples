@@ -5,15 +5,16 @@ from django.urls import reverse_lazy
 from web_project import TemplateLayout
 from fila.models import PlanoCarregamento
 from fila.forms import PlanoCarregamentoForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class PlanosView(TemplateView):
+class PlanosView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context = TemplateLayout.init(self, context)  # Inicializa o layout global
         context['planos'] = PlanoCarregamento.objects.all()  # Adiciona os planos ao contexto
         return context
 
-class PlanosAdd(FormView):
+class PlanosAdd(LoginRequiredMixin, FormView):
     form_class = PlanoCarregamentoForm
     success_url = reverse_lazy("planos_view")  # Substitua pelo nome correto da URL
 
@@ -25,7 +26,7 @@ class PlanosAdd(FormView):
         context = super().get_context_data(**kwargs)
         context = TemplateLayout.init(self, context)  # Inicializa o layout global
         return context
-class PlanoEdit(TemplateView):
+class PlanoEdit(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,10 +53,7 @@ class PlanoEdit(TemplateView):
 
         return self.render_to_response(context)
 
-def PlanoDelete(request, plano_id):
+def PlanoDelete(LoginRequiredMixin, request, plano_id):
     plano = get_object_or_404(PlanoCarregamento, id=plano_id)
     plano.delete()
     return redirect('planos_view')  # Redireciona para a página de lista de planos
-
-def teste(request):
-    return render(request, 'teste.html')

@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from web_project import TemplateLayout
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 """
@@ -8,8 +9,7 @@ Here you can override the page view layout.
 Refer to dashboards/urls.py file for more pages.
 """
 
-
-class DashboardsView(TemplateView):
+class DashboardsView(LoginRequiredMixin, TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
         # A function to init the global layout. It is defined in web_project/__init__.py file

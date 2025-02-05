@@ -22,10 +22,6 @@ venv/
 */migrations/*
 !*/migrations/__init__.py
 
-# Media & Static (opcional, se gerenciado externamente)
-/media/
-/static/
-
 # Configurações Sensíveis
 .env
 config.json
@@ -40,11 +36,6 @@ settings_local.py
 # Docker e Outros Ambientes
 *.docker
 *.tar
-
-# Node.js (se usando npm/yarn para assets)
-node_modules/
-yarn.lock
-package-lock.json
 
 # Git
 *.orig

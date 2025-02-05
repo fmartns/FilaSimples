@@ -22,7 +22,7 @@
       <li class="nav-item navbar-dropdown dropdown-user dropdown">
         <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
           <div class="avatar avatar-online">
-            <img src="{% static 'img/avatars/1.png' %}" alt class="w-px-40 h-auto rounded-circle">
+            <img src="{{ user.foto.url }}" alt class="w-px-40 h-auto rounded-circle">
           </div>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
@@ -31,12 +31,21 @@
               <div class="d-flex">
                 <div class="flex-shrink-0 me-3">
                   <div class="avatar avatar-online">
-                    <img src="{% static 'img/avatars/1.png' %}" alt class="w-px-40 h-auto rounded-circle">
+                    <img src="{{ user.foto.url }}" alt class="w-px-40 h-auto rounded-circle">
                   </div>
                 </div>
                 <div class="flex-grow-1">
+                  {% comment %} fazer um if no tipo usuario {% endcomment %}
                   <h6 class="mb-0">{{ user.first_name }}</h6>
-                  <small class="text-muted">Admin</small>
+                  {% if user.tipo_usuario == 1 %}
+                    <small class="text-muted">Motorista</small>
+                  {% elif user.tipo_usuario == 2 %}
+                    <small class="text-muted">Administrador</small>
+                  {% elif user.tipo_usuario == 3 %}
+                    <small class="text-muted">Superuser</small>
+                  {% else %}
+                    <small class="text-muted">Tipo desconhecido</small>
+                  {% endif %}</small>
                 </div>
               </div>
             </a>
@@ -46,12 +55,12 @@
           </li>
           <li>
             <a class="dropdown-item" href="javascript:void(0);">
-             <i class="bx bx-user bx-md me-3"></i><span>My Profile</span>
+             <i class="bx bx-user bx-md me-3"></i><span>Meu perfil</span>
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="javascript:void(0);">
-              <i class="bx bx-cog bx-md me-3"></i><span>Settings</span>
+              <i class="bx bx-cog bx-md me-3"></i><span>Configurações</span>
             </a>
           </li>
           <li>
@@ -59,7 +68,7 @@
           </li>
           <li>
             <a class="dropdown-item" href="{% url 'logout' %}">
-              <i class="bx bx-power-off bx-md me-3"></i><span>Log Out</span>
+              <i class="bx bx-power-off bx-md me-3"></i><span>Sair</span>
             </a>
           </li>
           

@@ -46,11 +46,25 @@ class UserManager(BaseUserManager):
         user.is_active = True
         user.save(using=self._db)
         return user
+
+TIPO_USUARIO_CHOICES = (
+    (1, "Motorista"),
+    (2, "Administrador"),
+    (3, "Superuser"),
+)
+
+def foto_caminho(instance, filename):
+    # A extensão do arquivo original
+    extension = os.path.splitext(filename)[1]
+    # O novo nome do arquivo será o pk (ID) do objeto + a extensão do arquivo
+    return f'static/profile-pictures/{instance.pk}{extension}'
+
 class User(AbstractUser):
     username = None
+    foto = models.ImageField(upload_to=foto_caminho, null=True, blank=True, default='static/profile-pictures/default.jpg')
     shopee_id = models.IntegerField(unique=True)
     telefone = models.CharField(max_length=20)
-    tipo_usuario = models.IntegerField(null=True)
+    tipo_usuario = models.IntegerField(choices=TIPO_USUARIO_CHOICES, default=1, null=True)
     tipo_veiculo = models.IntegerField(null=True)
 
     USERNAME_FIELD = 'shopee_id'
