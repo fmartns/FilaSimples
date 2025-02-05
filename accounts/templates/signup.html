@@ -1,0 +1,91 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Register - Pages{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static  'vendor/css/pages/page-auth.css' %}">
+{% endblock page_css %}
+
+{% block content %}
+<div class="container-xxl">
+  <div class="authentication-wrapper authentication-basic container-p-y">
+    <div class="authentication-inner">
+      <div class="card px-sm-6 px-0">
+        <div class="card-body">
+          <div class="app-brand justify-content-center mb-6">
+            <a href="{% url 'index' %}" class="app-brand-link gap-2">
+              <span class="app-brand-logo demo">{% include 'partials/logo.html' with withbg="#696cff" %}</span>
+              <span class="app-brand-text demo text-heading fw-bold">{% get_theme_variables 'template_name' %}</span>
+            </a>
+          </div>
+          <h4 class="mb-1">Adventure starts here 🚀</h4>
+          <p class="mb-6">Make your app management easy and fun!</p>
+
+          <form id="formAuthentication" class="mb-6" method="post">
+            {% csrf_token %}
+
+            <div class="mb-6">
+              <label for="shopee_id" class="form-label">Shopee ID</label>
+              <input type="text" class="form-control" id="shopee_id" name="shopee_id" placeholder="Enter your Shopee ID">
+            </div>
+            <div class="mb-6">
+              <label for="first_name" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter your first name">
+            </div>
+            <div class="mb-6">
+              <label for="last_name" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter your last name">
+            </div>
+            <div class="mb-6">
+              <label for="telefone" class="form-label">Phone</label>
+              <input type="text" class="form-control" id="telefone" name="telefone" placeholder="Enter your phone number">
+            </div>
+            <div class="mb-6">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
+            </div>
+            <div class="mb-6 form-password-toggle">
+              <label class="form-label" for="password1">Password</label>
+              <div class="input-group input-group-merge">
+                <input type="password" id="password1" class="form-control" name="password1" placeholder="********" aria-describedby="password" />
+                <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+            </div>
+            <div class="mb-6 form-password-toggle">
+              <label class="form-label" for="password2">Confirm Password</label>
+              <div class="input-group input-group-merge">
+                <input type="password" id="password2" class="form-control" name="password2" placeholder="********" aria-describedby="password2" />
+                <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+            </div>
+
+            <div class="my-8">
+              <div class="form-check mb-0 ms-2">
+                <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms">
+                <label class="form-check-label" for="terms-conditions">
+                  I agree to
+                  <a href="javascript:void(0);">privacy policy & terms</a>
+                </label>
+              </div>
+            </div>
+            <button class="btn btn-primary d-grid w-100">
+              Sign up
+            </button>
+          </form>
+
+          <p class="text-center">
+            <span>Already have an account?</span>
+            <a href="{% url 'login' %}">
+              <span>Sign in instead</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

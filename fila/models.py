@@ -112,7 +112,7 @@ class Rota(models.Model):
 class Senha(models.Model):
     user = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
     plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
-
+    patio = models.IntegerField(default=0)
     class Meta:
         unique_together = ('user', 'plano')
 

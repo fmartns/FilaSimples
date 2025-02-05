@@ -8,10 +8,6 @@
 {% block content %}
 <!-- Filtro de Data -->
 <div class="d-flex justify-content-between mb-3">
-  <div class="d-flex">
-    <input type="date" id="filter-start-date" class="form-control me-2" placeholder="Data Início" />
-    <input type="date" id="filter-end-date" class="form-control" placeholder="Data Fim" />
-  </div>
   <a href="{% url 'plano_add' %}" class="btn btn-primary">Criar novo plano</a>
 </div>
 
@@ -51,32 +47,4 @@
 </div>
 <!--/ Basic Bootstrap Table -->
 <!--/ Responsive Table -->
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const filterStartDate = document.getElementById('filter-start-date');
-    const filterEndDate = document.getElementById('filter-end-date');
-    const table = document.getElementById('plano-table');
-    
-    // Filtro em tempo real
-    function filterTable() {
-      const startDate = filterStartDate.value;
-      const endDate = filterEndDate.value;
-
-      for (const row of table.querySelectorAll('tbody tr')) {
-        const rowStartDate = row.getAttribute('data-start-date');
-        const rowEndDate = row.getAttribute('data-end-date');
-        
-        const showRow = 
-          (!startDate || rowStartDate >= startDate) && 
-          (!endDate || rowEndDate <= endDate);
-          
-        row.style.display = showRow ? '' : 'none';
-      }
-    }
-
-    filterStartDate.addEventListener('input', filterTable);
-    filterEndDate.addEventListener('input', filterTable);
-  });
-</script>
 {% endblock %}

@@ -49,7 +49,7 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     username = None
     shopee_id = models.IntegerField(unique=True)
-    telefone = models.CharField(max_length=20, unique=True)
+    telefone = models.CharField(max_length=20)
     tipo_usuario = models.IntegerField(null=True)
     tipo_veiculo = models.IntegerField(null=True)
 
