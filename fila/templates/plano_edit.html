@@ -1,0 +1,62 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Editar Plano de Carregamento{% endblock %}
+
+{% block content %}
+  <div class="col-xl-6">
+    <div class="card mb-6">
+      <h5 class="card-header">Editar Plano de Carregamento</h5>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-4 row">
+            <label for="id_data_inicio" class="col-md-2 col-form-label">Data Início</label>
+            <div class="col-md-10">
+              <input class="form-control" type="date" name="data_inicio" id="id_data_inicio" value="{{ form.data_inicio.value|default:'' }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_horario_inicio" class="col-md-2 col-form-label">Horário Início</label>
+            <div class="col-md-10">
+              <input class="form-control" type="time" name="horario_inicio" id="id_horario_inicio" value="{{ form.horario_inicio.value|default:'' }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_data_fim" class="col-md-2 col-form-label">Data Fim</label>
+            <div class="col-md-10">
+              <input class="form-control" type="date" name="data_fim" id="id_data_fim" value="{{ form.data_fim.value|default:'' }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_horario_fim" class="col-md-2 col-form-label">Horário Fim</label>
+            <div class="col-md-10">
+              <input class="form-control" type="time" name="horario_fim" id="id_horario_fim" value="{{ form.horario_fim.value|default:'' }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_planilha" class="col-md-2 col-form-label">Planilha</label>
+            <div class="col-md-10">
+              <input class="form-control" type="file" name="planilha" id="id_planilha">
+              {% if plano.planilha %}
+                <p class="mt-2">Arquivo Atual: <a href="{{ plano.planilha.url }}" target="_blank">{{ plano.planilha.name }}</a></p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            <a href="{% url 'planos_view' %}" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
