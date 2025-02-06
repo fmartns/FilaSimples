@@ -1,0 +1,73 @@
+<tbody class="table-border-bottom-0">
+{% for user in users %}
+<tr data-start-date="{{ user.data_inicio }}" data-end-date="{{ user.data_fim }}">
+    <td> <img src="{{ user.foto.url }}" alt="user-img" class="avatar-md rounded-circle"> </td>
+    <td>{{ user.shopee_id }}</td>
+    <td>{{ user.first_name }} {{ user.last_name }}</td>
+    <td>
+        {% if user.tipo_usuario == 1 %}
+        Motorista
+        {% elif user.tipo_usuario == 2 %}
+        Administrador
+        {% elif user.tipo_usuario == 3 %}
+        Superuser
+        {% else %}
+        Tipo desconhecido
+        {% endif %}
+    </td>
+    <td>{{ user.telefone }}</td>
+    <td>{{ user.email }}</td>
+    <td>
+    {% if user.is_active %}
+    <span class="badge bg-label-success me-1">Ativo</span>
+    {% else %}
+    <span class="badge bg-label-danger me-1">Inativo</span>
+    {% endif %}
+    </td>
+    <td>
+    <div class="dropdown">
+        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
+        <div class="dropdown-menu">
+        <a class="dropdown-item" href="#"><i class="bx bx-edit-alt me-1"></i> Editar</a>
+        <a class="dropdown-item" href="#"><i class="bx bx-trash me-1"></i> Excluir</a>
+        </div>
+    </div>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+
+<!-- Paginação -->
+<div class="card-footer d-flex justify-content-between align-items-center">
+    <div class="dataTables_paginate paging_simple_numbers">
+        <ul class="pagination mb-0">
+            {% if users.has_previous %}
+            <li class="paginate_button page-item previous">
+                <a href="#" class="page-link pagination-link" data-page="{{ users.previous_page_number }}">
+                    <i class="bx bx-chevron-left bx-18px"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="paginate_button page-item previous disabled">
+                <a class="page-link"><i class="bx bx-chevron-left bx-18px"></i></a>
+            </li>
+            {% endif %}
+
+            <li class="paginate_button page-item active">
+                <a href="#" class="page-link">{{ users.number }}</a>
+            </li>
+
+            {% if users.has_next %}
+            <li class="paginate_button page-item next">
+                <a href="#" class="page-link pagination-link" data-page="{{ users.next_page_number }}">
+                    <i class="bx bx-chevron-right bx-18px"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="paginate_button page-item next disabled">
+                <a class="page-link"><i class="bx bx-chevron-right bx-18px"></i></a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

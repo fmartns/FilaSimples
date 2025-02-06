@@ -6,14 +6,46 @@
 {% block title %}Planos de Carregamento{% endblock %}
 
 {% block content %}
-<!-- Filtro de Data -->
-<div class="d-flex justify-content-between mb-3">
-  <a href="{% url 'plano_add' %}" class="btn btn-primary">Criar novo plano</a>
-</div>
 
-<!-- Basic Bootstrap Table -->
 <div class="card">
-  <h5 class="card-header">Plano de carregamento</h5>
+  <div class="card-body">
+    <div class="row">
+        <div class="col-md-2">
+          <div class="me-3">
+              <div class="dataTables_length">
+                <label>
+                    <select id="entriesSelect" name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" class="form-select mx-0">
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                </label>
+              </div>
+          </div>
+        </div>
+        <div class="col-md-10">
+          <div class="dt-action-buttons text-xl-end text-lg-start text-md-end text-start d-flex align-items-center justify-content-end flex-md-row flex-column mb-6 mb-md-0 mt-n6 mt-md-0 gap-md-5">
+              <div id="DataTables_Table_0_filter" class="dataTables_filter">
+                <label>
+                <input type="search" id="searchInput" class="form-control ms-0" placeholder="Pesquisar.." aria-controls="DataTables_Table_0">
+                </label>
+              </div>
+              <div class="dt-buttons flex-wrap">
+                <a href="{% url 'plano_add' %}">
+                  <button class="btn btn-primary" type="button">
+                    <span>
+                      <i class="bx bx-plus bx-sm me-0 me-sm-2"></i>
+                      <span class="d-none d-sm-inline-block">Criar novo plano</span>
+                    </span>
+                  </button>
+                </a>
+              </div>
+          </div>
+        </div>
+    </div>
+  </div>
+
   <div class="table-responsive text-nowrap">
     <table class="table" id="plano-table">
       <thead>
@@ -44,7 +76,44 @@
       </tbody>
     </table>
   </div>
-</div>
-<!--/ Basic Bootstrap Table -->
-<!--/ Responsive Table -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const tableBody = document.querySelector("#plano-table tbody");
+    const entriesSelect = document.getElementById("entriesSelect");
+    const paginationContainer = document.querySelector(".pagination-container");
+
+    function fetchPlanos(page = 1) {
+        let query = searchInput.value.trim();
+        let limit = entriesSelect.value;
+
+        fetch(`{% url 'search_planos' %}?term=${query}&limit=${limit}&page=${page}`)
+            .then(response => response.text())
+            .then(html => {
+                tableBody.innerHTML = html;
+
+                // Atualiza a paginação
+                updatePaginationListeners();
+            })
+            .catch(error => console.error('Erro na busca:', error));
+    }
+
+    function updatePaginationListeners() {
+        document.querySelectorAll(".pagination-link").forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                let page = this.dataset.page;
+                fetchPlanos(page);
+            });
+        });
+    }
+
+    searchInput.addEventListener("keyup", () => fetchPlanos(1));
+    entriesSelect.addEventListener("change", () => fetchPlanos(1));
+
+    fetchPlanos();  // Chama a função ao carregar a página
+});
+</script>
+
 {% endblock %}

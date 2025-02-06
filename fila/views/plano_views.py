@@ -6,6 +6,8 @@ from web_project import TemplateLayout
 from fila.models import PlanoCarregamento
 from fila.forms import PlanoCarregamentoForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 class PlanosView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
@@ -13,6 +15,27 @@ class PlanosView(LoginRequiredMixin, TemplateView):
         context = TemplateLayout.init(self, context)  # Inicializa o layout global
         context['planos'] = PlanoCarregamento.objects.all()  # Adiciona os planos ao contexto
         return context
+
+def search_planos(request):
+    term = request.GET.get('term', '').strip()
+    limit = int(request.GET.get('limit', 10))
+    page_number = request.GET.get('page', 1)  # Obtém o número da página atual
+
+    planos = PlanoCarregamento.objects.all()
+
+    if term:
+        planos = planos.filter(
+            Q(data_inicio__icontains=term) |
+            Q(data_fim__icontains=term) |
+            Q(horario_inicio__icontains=term) |
+            Q(horario_fim__icontains=term) |
+            Q(planilha__icontains=term)
+        )
+
+    paginator = Paginator(planos, limit)  # Aplica a paginação
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "partials/planos_table.html", {"planos": page_obj, "paginator": paginator})
 
 class PlanosAdd(LoginRequiredMixin, FormView):
     form_class = PlanoCarregamentoForm

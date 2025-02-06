@@ -1,0 +1,133 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Users de Carregamento{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+        <div class="col-md-2">
+          <div class="me-3">
+              <div class="dataTables_length">
+                <label>
+                    <select id="entriesSelect" name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" class="form-select mx-0">
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                </label>
+              </div>
+          </div>
+        </div>
+        <div class="col-md-10">
+          <div class="dt-action-buttons text-xl-end text-lg-start text-md-end text-start d-flex align-items-center justify-content-end flex-md-row flex-column mb-6 mb-md-0 mt-n6 mt-md-0 gap-md-5">
+              <div id="DataTables_Table_0_filter" class="dataTables_filter">
+                <label>
+                <input type="search" id="searchInput" class="form-control ms-0" placeholder="Pesquisar.." aria-controls="DataTables_Table_0">
+                </label>
+              </div>
+              <div class="dt-buttons flex-wrap">
+                <a href="#">
+                  <button class="btn btn-primary" type="button">
+                    <span>
+                      <i class="bx bx-plus bx-sm me-0 me-sm-2"></i>
+                      <span class="d-none d-sm-inline-block">Criar novo usuário</span>
+                    </span>
+                  </button>
+                </a>
+              </div>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="table-responsive text-nowrap">
+    <table class="table" id="user-table">
+      <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Id do Usuário</th>
+            <th>Nome</th>
+            <th>Cargo</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Ativo</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        {% for user in users %}
+        <tr data-start-date="{{ user.data_inicio }}" data-end-date="{{ user.data_fim }}">
+          <td> <img src="{{ user.foto.url }}" alt="user-img" class="avatar-md rounded-circle"> </td>
+          <td>{{ user.shopee_id }}</td>
+          <td>{{ user.first_name }} {{ user.last_name }}</td>
+          <td>{{ user.tipo_usuario }}</td>
+          <td>{{ user.telefone }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            {% if user.is_active %}
+            <span class="badge bg-label-success me-1">Ativo</span>
+            {% else %}
+            <span class="badge bg-label-danger me-1">Inativo</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="dropdown">
+              <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#"><i class="bx bx-edit-alt me-1"></i> Editar</a>
+                <a class="dropdown-item" href="#"><i class="bx bx-trash me-1"></i> Excluir</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const tableBody = document.querySelector("#user-table tbody");
+    const entriesSelect = document.getElementById("entriesSelect");
+    const paginationContainer = document.querySelector(".pagination-container");
+
+    function fetchUsers(page = 1) {
+        let query = searchInput.value.trim();
+        let limit = entriesSelect.value;
+
+        fetch(`{% url 'search_users' %}?term=${query}&limit=${limit}&page=${page}`)
+            .then(response => response.text())
+            .then(html => {
+                tableBody.innerHTML = html;
+
+                // Atualiza a paginação
+                updatePaginationListeners();
+            })
+            .catch(error => console.error('Erro na busca:', error));
+    }
+
+    function updatePaginationListeners() {
+        document.querySelectorAll(".pagination-link").forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                let page = this.dataset.page;
+                fetchUsers(page);
+            });
+        });
+    }
+
+    searchInput.addEventListener("keyup", () => fetchUsers(1));
+    entriesSelect.addEventListener("change", () => fetchUsers(1));
+
+    fetchUsers();  // Chama a função ao carregar a página
+});
+</script>
+
+{% endblock %}

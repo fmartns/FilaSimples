@@ -70,7 +70,7 @@ class PlanoCarregamento(models.Model):
             print(f"Colunas da planilha: {df.columns.tolist()}")
 
             # Verifica se todas as colunas esperadas estão presentes
-            colunas_esperadas = {'AT', 'gaiola', 'cidade', 'km', 'id'}
+            colunas_esperadas = {'AT', 'LETRA', 'CIDADE', 'KM', 'id'}
             if not colunas_esperadas.issubset(df.columns):
                 raise ValueError("A planilha não possui as colunas esperadas!")
 
@@ -86,9 +86,9 @@ class PlanoCarregamento(models.Model):
                 Rota.objects.create(
                     plano=self,
                     AT=row['AT'],
-                    gaiola=row['gaiola'],
-                    cidade=row['cidade'],
-                    km=row['km'],
+                    gaiola=row['LETRA'],
+                    cidade=row['CIDADE'],
+                    km=row['KM'],
                     user=user
                 )
 
