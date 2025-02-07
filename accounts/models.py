@@ -53,30 +53,23 @@ def foto_caminho(instance, filename):
     extension = os.path.splitext(filename)[1]
     # O novo nome do arquivo será o pk (ID) do objeto + a extensão do arquivo
     return f'static/profile-pictures/{instance.pk}{extension}'
-class TipoUsuario(models.Model):
-    descricao = models.CharField(max_length=20)
-    perm_group = models.ForeignKey(Group, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.tipo_usuario
 class User(AbstractUser):
     username = None
     foto = models.ImageField(upload_to=foto_caminho, null=True, blank=True, default='static/profile-pictures/default.jpg')
     shopee_id = models.IntegerField(unique=True)
     telefone = models.CharField(max_length=20)
-    tipo_usuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE, null=True)
+    cargo = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        default=1,
+        related_name='+',  # desabilita o reverse accessor para esse campo
+    )
     tipo_veiculo = models.IntegerField(null=True)
 
     USERNAME_FIELD = 'shopee_id'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'email']
 
     objects = UserManager()
-
-    def save(self, *args, **kwargs):
-        if self.tipo_usuario:
-            self.groups.clear()
-            self.groups.add(self.tipo_usuario.group)
-        super(User, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.shopee_id})"

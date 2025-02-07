@@ -36,15 +36,15 @@
                 </div>
                 <div class="flex-grow-1">
                   <h6 class="mb-0">{{ user.first_name }}</h6>
-                  {% if user.tipo_usuario == 1 %}
-                    <small class="text-muted">Motorista</small>
-                  {% elif user.tipo_usuario == 2 %}
+                  {% if user.is_superuser %}
                     <small class="text-muted">Administrador</small>
-                  {% elif user.tipo_usuario == 3 %}
-                    <small class="text-muted">Superuser</small>
                   {% else %}
-                    <small class="text-muted">Tipo desconhecido</small>
-                  {% endif %}</small>
+                    {% if user.cargo %}
+                      <small class="text-muted">{{ user.cargo.name }}</small>
+                    {% else %}
+                      <small class="text-muted">Sem cargo</small>
+                    {% endif %}</small>
+                  {% endif %}
                 </div>
               </div>
             </a>

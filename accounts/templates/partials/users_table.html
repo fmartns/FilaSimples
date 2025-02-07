@@ -1,40 +1,86 @@
 <tbody class="table-border-bottom-0">
-{% for user in users %}
-<tr data-start-date="{{ user.data_inicio }}" data-end-date="{{ user.data_fim }}">
-    <td> <img src="{{ user.foto.url }}" alt="user-img" class="avatar-md rounded-circle"> </td>
-    <td>{{ user.shopee_id }}</td>
-    <td>{{ user.first_name }} {{ user.last_name }}</td>
-    <td>
-        {% if user.tipo_usuario == 1 %}
-        Motorista
-        {% elif user.tipo_usuario == 2 %}
-        Administrador
-        {% elif user.tipo_usuario == 3 %}
-        Superuser
-        {% else %}
-        Tipo desconhecido
-        {% endif %}
+  {% for user in users %}
+  <tr data-start-date="{{ user.data_inicio }}" data-end-date="{{ user.data_fim }}">
+    <!-- Coluna 3: Informações do Usuário (avatar, nome e email) -->
+    <td class="sorting_1">
+      <div class="d-flex justify-content-start align-items-center user-name">
+        <div class="avatar-wrapper">
+          <div class="avatar avatar-sm me-4">
+            <img src="{{ user.foto.url }}" alt="Avatar" class="rounded-circle">
+          </div>
+        </div>
+        <div class="d-flex flex-column">
+          <a href="#" class="text-heading text-truncate">
+            <span class="fw-medium">{{ user.first_name }} {{ user.last_name }}</span>
+          </a>
+          <small>{{ user.shopee_id }}</small>
+        </div>
+      </div>
     </td>
-    <td>{{ user.telefone }}</td>
-    <td>{{ user.email }}</td>
+    
+    <!-- Coluna 4: Cargo (ou Administrador) -->
     <td>
-    {% if user.is_active %}
-    <span class="badge bg-label-success me-1">Ativo</span>
-    {% else %}
-    <span class="badge bg-label-danger me-1">Inativo</span>
+      <span class="text-truncate d-flex align-items-center text-heading">
+        <i class="bx bx-user text-success me-2"></i>
+        {% if user.is_superuser %}
+          Administrador
+        {% else %}
+          {% if user.cargo %}
+            {{ user.cargo.name }}
+          {% else %}
+            Sem cargo
+          {% endif %}
+        {% endif %}
+      </span>
+    </td>
+    
+    <!-- Coluna 5: Shopee ID (pode ser ajustado conforme a sua necessidade) -->
+    <td>
+      <span class="text-heading">{{ user.email }}</span>
+    </td>
+    
+    <!-- Coluna 6: Telefone -->
+    <td>
+      {{ user.telefone }}
+    </td>
+    
+    <!-- Coluna 7: Status -->
+    <td>
+    {% if user.last_login == None and user.is_active == False %}
+        <span class="badge bg-label-warning" text-capitalized="">Pendente</span>
+        {% else %}
+      {% if user.is_active %}
+        <span class="badge bg-label-success" text-capitalized="">Ativo</span>
+      {% else %}
+        <span class="badge bg-label-danger" text-capitalized="">Inativo</span>
+      {% endif %}
     {% endif %}
     </td>
-    <td>
-    <div class="dropdown">
-        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
-        <div class="dropdown-menu">
-        <a class="dropdown-item" href="#"><i class="bx bx-edit-alt me-1"></i> Editar</a>
-        <a class="dropdown-item" href="#"><i class="bx bx-trash me-1"></i> Excluir</a>
+    
+    <!-- Coluna 8: Ações (visualizar, editar e excluir) -->
+    <td class="dtr-hidden">
+      <div class="d-flex align-items-center">
+        <a href="#" class="btn btn-icon delete-record">
+          <i class="bx bx-trash bx-md"></i>
+        </a>
+        <a href="#" class="btn btn-icon">
+          <i class="bx bx-show bx-md"></i>
+        </a>
+        <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+          <i class="bx bx-dots-vertical-rounded bx-md"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end m-0">
+          <a href="#" class="dropdown-item">
+            Editar
+          </a>
+          <a href="#" class="dropdown-item">
+            Suspender
+          </a>
         </div>
-    </div>
+      </div>
     </td>
-</tr>
-{% endfor %}
+  </tr>
+  {% endfor %}
 </tbody>
 
 <!-- Paginação -->
