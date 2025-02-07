@@ -12,7 +12,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.paginator import Paginator
-
+from django.http import HttpResponseRedirect
 
 class LoginView(LoginView):
     template_name = "login.html"
@@ -25,16 +25,17 @@ class LoginView(LoginView):
 class SignupView(FormView):
     template_name = "signup.html"
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy("index")
+    success_url = reverse_lazy("login")  # Redireciona para a página de login
 
     def form_valid(self, form):
         user = form.save(commit=False)
         user.is_active = False
         user.save()
         print("Usuario cadastrado: ", user)
-        
+
         messages.success(self.request, "Cadastro realizado com sucesso! Aguarde um administrador aceitar sua conta.")
-        return
+
+        return HttpResponseRedirect(self.get_success_url())  # Redireciona para o login
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))

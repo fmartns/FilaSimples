@@ -16,7 +16,7 @@
           <div class="mb-4 row">
             <label for="id_data_inicio" class="col-md-2 col-form-label">Data Início</label>
             <div class="col-md-10">
-              <input class="form-control" type="date" name="data_inicio" id="id_data_inicio" value="{{ form.data_inicio.value|default:'' }}" required>
+              <input class="form-control" type="date" name="data_inicio" id="id_data_inicio" value="{{ form.data_inicio.value|date:'Y-m-d' }}" required>
             </div>
           </div>
 
@@ -30,7 +30,7 @@
           <div class="mb-4 row">
             <label for="id_data_fim" class="col-md-2 col-form-label">Data Fim</label>
             <div class="col-md-10">
-              <input class="form-control" type="date" name="data_fim" id="id_data_fim" value="{{ form.data_fim.value|default:'' }}" required>
+              <input class="form-control" type="date" name="data_fim" id="id_data_fim" value="{{ form.data_fim.value|date:'Y-m-d' }}" required>
             </div>
           </div>
 
@@ -44,9 +44,13 @@
           <div class="mb-4 row">
             <label for="id_planilha" class="col-md-2 col-form-label">Planilha</label>
             <div class="col-md-10">
-              <input class="form-control" type="file" name="planilha" id="id_planilha">
               {% if plano.planilha %}
                 <p class="mt-2">Arquivo Atual: <a href="{{ plano.planilha.url }}" target="_blank">{{ plano.planilha.name }}</a></p>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                  Remover Planilha
+                </button>
+              {% else %}
+                <input class="form-control" type="file" name="planilha" id="id_planilha">
               {% endif %}
             </div>
           </div>
@@ -59,4 +63,23 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ Modal de Confirmação para Remover Planilha -->
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteLabel">Confirmar Exclusão</h5>
+        </div>
+        <div class="modal-body">
+          Tem certeza que deseja remover a planilha anexada? Essa ação não pode ser desfeita.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <a href="{% url 'plano_planilha_delete' plano.id %}" class="btn btn-danger">Sim, Remover</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}

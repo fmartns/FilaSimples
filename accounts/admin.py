@@ -21,3 +21,4 @@ class CustomUserAdmin(UserAdmin):
     ordering = ('shopee_id',)
 
 admin.site.register(User, CustomUserAdmin)
+
