@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.models import Group
+from django.utils.timezone import now
+import os
 class UserManager(BaseUserManager):
     def create_user(self, shopee_id, email, first_name, last_name, password=None, is_superuser=False, is_staff=False, is_active=True):
         if not email:
@@ -53,6 +55,13 @@ def foto_caminho(instance, filename):
     extension = os.path.splitext(filename)[1]
     # O novo nome do arquivo será o pk (ID) do objeto + a extensão do arquivo
     return f'static/profile-pictures/{instance.pk}{extension}'
+
+class TipoVeiculo (models.Model):
+    name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.descricao
 class User(AbstractUser):
     username = None
     foto = models.ImageField(upload_to=foto_caminho, null=True, blank=True, default='static/profile-pictures/default.jpg')
@@ -64,7 +73,8 @@ class User(AbstractUser):
         default=1,
         related_name='+',  # desabilita o reverse accessor para esse campo
     )
-    tipo_veiculo = models.IntegerField(null=True)
+    tipo_veiculo = models.ForeignKey(TipoVeiculo, on_delete=models.CASCADE, null=True, blank=True)
+    placa = models.CharField(max_length=10, null=True, blank=True)
 
     USERNAME_FIELD = 'shopee_id'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'email']
@@ -74,3 +84,13 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.shopee_id})"
     
+
+class UserDevice(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="devices")
+    device = models.CharField(max_length=255)  # Nome do navegador/sistema
+    ip_address = models.GenericIPAddressField()
+    location = models.CharField(max_length=255, blank=True, null=True)  # Pode ser preenchido via API de geolocalização
+    last_login = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.device} - {self.ip_address}"

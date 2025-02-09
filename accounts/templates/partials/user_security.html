@@ -1,0 +1,111 @@
+{% extends 'user_view.html' %}
+
+{% block content_rotas %}
+<div class="col-xl-8 col-lg-7 order-0 order-md-1">
+    <!-- Módulos usuário -->
+    <div class="nav-align-top">
+        <ul class="nav nav-pills flex-column flex-md-row mb-6">
+            <li class="nav-item"><a class="nav-link" href="{% url 'user_view' viewed_user.id %}"><i class="bx bx-car bx-sm me-1_5"></i>Rotas</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{% url 'user_security' viewed_user.id %}"><i class="bx bx-lock-alt bx-sm me-1_5"></i>Segurança</a></li>
+        </ul>
+    </div>
+
+    <!-- Alteração de Senha -->
+    <div class="card mb-6">
+        <h5 class="card-header">Mudar Senha</h5>
+        <div class="card-body">
+            <!-- Mensagens de Alerta -->
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'senha' in message.tags %}
+                        <div class="alert {% if 'success' in message.tags %}alert-success{% else %}alert-danger{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <!-- Formulário de Alteração de Senha -->
+            
+
+
+            <form id="formChangePassword" method="POST" class="fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate">
+                {% csrf_token %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <h5 class="alert-heading mb-1">Certifique-se de que esses requisitos sejam atendidos</h5>
+                    <span>Mínimo de 8 caracteres, letras maiúsculas e minúsculas.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="row gx-6">
+                    <div class="mb-4 col-12 col-sm-6 form-password-toggle fv-plugins-icon-container">
+                        <label class="form-label" for="newPassword1">Nova Senha</label>
+                        <div class="input-group input-group-merge has-validation">
+                            <input class="form-control" type="password" id="newPassword1" name="new_password1" placeholder="············">
+                            <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 col-12 col-sm-6 form-password-toggle fv-plugins-icon-container">
+                        <label class="form-label" for="newPassword2">Confirme a Nova Senha</label>
+                        <div class="input-group input-group-merge has-validation">
+                            <input class="form-control" type="password" id="newPassword2" name="new_password2" placeholder="············">
+                            <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn btn-primary me-2">Mudar Senha</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--/ Alteração de Senha -->
+
+    <!-- Dispositivos Recentes -->
+    <div class="card mb-6">
+        <h5 class="card-header">Dispositivos Recentes</h5>
+        <div class="table-responsive table-border-bottom-0">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-truncate">Navegador</th>
+                        <th class="text-truncate">Dispositivo</th>
+                        <th class="text-truncate">Local</th>
+                        <th class="text-truncate">Último Acesso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in user_devices %}
+                    <tr>
+                        <td class="text-truncate">
+                            {% if "Windows" in device.device %}
+                                <i class="bx bxl-windows bx-md text-info me-4"></i>
+                                <span class="text-heading">Chrome no Windows</span>
+                            {% elif "iPhone" in device.device %}
+                                <i class="bx bx-mobile-alt bx-md text-danger me-4"></i>
+                                <span class="text-heading">Chrome no iPhone</span>
+                            {% elif "Android" in device.device %}
+                                <i class="bx bxl-android bx-md text-success me-4"></i>
+                                <span class="text-heading">Chrome no Android</span>
+                            {% elif "Mac" in device.device %}
+                                <i class="bx bxl-apple bx-md text-secondary me-4"></i>
+                                <span class="text-heading">Chrome no MacOS</span>
+                            {% else %}
+                                <i class="bx bx-desktop bx-md text-muted me-4"></i>
+                                <span class="text-heading">Desconhecido</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-truncate" title="{{ device.device }}">
+                            {{ device.device|slice:":20" }}{% if device.device|length > 20 %}...{% endif %}
+                        </td>
+                        <td class="text-truncate">{{ device.location|default:"Desconhecido" }}</td>
+                        <td class="text-truncate">{{ device.last_login|date:"d, F Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

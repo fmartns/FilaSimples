@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'accounts',
     'fila',
     'dashboards',
+    'hub',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.my_setting",
                 "core.context_processors.environment",
+                "hub.context_processors.hub_context",
             ],
 
             "libraries": {

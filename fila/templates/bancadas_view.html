@@ -1,0 +1,138 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Bancada{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="entriesSelect">Exibir:</label>
+                <select id="entriesSelect" name="entriesSelect" class="form-select">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="filtroSelect">Filtrar:</label>
+                <select id="filtroSelect" name="filtroSelect" class="form-select">
+                    <option value="todos" selected>Todos</option>
+                    <option value="ativos">Ativos</option>
+                    <option value="inativos">Inativos</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="searchInput">Pesquisar:</label>
+                <input type="search" id="searchInput" class="form-control" placeholder="Pesquisar..." aria-controls="DataTables_Table_0">
+            </div>
+
+            <div class="col-md-2 text-end">
+                <a href="{% url 'bancada_add' %}">
+                    <button class="btn btn-primary w-100">
+                        <i class="bx bx-plus bx-sm me-1"></i> Criar nova bancada
+                    </button>
+                </a>
+            </div>
+        </div>
+
+
+    </div>
+  </div>
+
+  <div class="table-responsive text-nowrap mt-4">
+    <table class="table" id="bancada-table">
+      <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+      {% for banc in bancadas %}
+      <tr>
+          <td>{{ banc.name }}</td>
+          <td>
+              {% if banc.is_active == True %}
+                  <span class="badge bg-label-success me-1">Ativa</span>
+              {% else %}
+                  <span class="badge bg-label-danger me-1">Inativa</span>
+              {% endif %}
+          </td>
+          <td class="dtr-hidden">
+              <div class="dropdown-menu dropdown-menu-end m-0">
+                  <a href="#" class="dropdown-item">
+                      Editar
+                  </a>
+                  <a href="#" class="dropdown-item">
+                      Ativar
+                  </a>
+              </div>
+          </td>
+          <td>
+            <div class="dropdown">
+              <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'bancada_edit' banc.id %}"><i class="bx bx-edit me-1"></i> Editar</a>
+                <a class="dropdown-item" href="#"><i class="bx bx-trash me-1"></i> Excluir</a>
+              </div>
+            </div>
+          </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.querySelector("#bancada-table tbody");
+    const entriesSelect = document.getElementById("entriesSelect");
+    const searchInput = document.getElementById("searchInput");
+    const filtroSelect = document.getElementById("filtroSelect");
+
+    function fetchBancadas(page = 1) {
+        let limit = entriesSelect.value;
+        let filtro = filtroSelect.value;
+        let q = searchInput.value;
+
+        fetch(`{% url 'search_bancadas' %}?q=${q}&limit=${limit}&page=${page}&filtro=${filtro}`)
+            .then(response => response.text())
+            .then(html => {
+                tableBody.innerHTML = html;
+                updatePaginationListeners();
+            })
+            .catch(error => console.error('Erro na busca:', error));
+    }
+
+    function updatePaginationListeners() {
+        document.querySelectorAll(".pagination-link").forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                let page = this.dataset.page;
+                fetchBancadas(page);
+            });
+        });
+    }
+
+    entriesSelect.addEventListener("change", () => fetchBancadas(1));
+    filtroSelect.addEventListener("change", () => fetchBancadas(1));
+    searchInput.addEventListener("keyup", () => fetchBancadas(1));
+
+    fetchBancadas();  // Chama a função ao carregar a página
+});
+</script>
+
+{% endblock %}

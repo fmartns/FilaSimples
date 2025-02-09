@@ -10,9 +10,9 @@
           </div>
         </div>
         <div class="d-flex flex-column">
-          <a href="#" class="text-heading text-truncate">
-            <span class="fw-medium">{{ user.first_name }} {{ user.last_name }}</span>
-          </a>
+            <a href="{% url 'user_view' user.id %}" class="text-heading text-truncate">
+              <span class="fw-medium">{{ user.first_name }} {{ user.last_name }}</span>
+            </a>
           <small>{{ user.shopee_id }}</small>
         </div>
       </div>
@@ -52,7 +52,7 @@
       {% if user.is_active %}
         <span class="badge bg-label-success" text-capitalized="">Ativo</span>
       {% else %}
-        <span class="badge bg-label-danger" text-capitalized="">Inativo</span>
+        <span class="badge bg-label-danger" text-capitalized="">Suspenso</span>
       {% endif %}
     {% endif %}
     </td>
@@ -60,22 +60,34 @@
     <!-- Coluna 8: Ações (visualizar, editar e excluir) -->
     <td class="dtr-hidden">
       <div class="d-flex align-items-center">
-        <a href="#" class="btn btn-icon delete-record">
+        <a href="{% url 'delete_user' user.id %}" class="btn btn-icon delete-record">
           <i class="bx bx-trash bx-md"></i>
         </a>
-        <a href="#" class="btn btn-icon">
+        <a href="{% url 'user_view' user.id %}" class="btn btn-icon">
           <i class="bx bx-show bx-md"></i>
         </a>
         <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
           <i class="bx bx-dots-vertical-rounded bx-md"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-end m-0">
-          <a href="#" class="dropdown-item">
-            Editar
+          <a href="{% url 'user_view' user.id %}?edit_user_modal=true" class="dropdown-item">
+              Editar
           </a>
-          <a href="#" class="dropdown-item">
-            Suspender
-          </a>
+            {% if user.last_login == None and user.is_active == False %}
+                <a href="{% url 'ativar_user' user.id %}" class="dropdown-item">
+                  Ativar
+                </a>
+            {% else %}
+              {% if user.is_active %}
+                <a href="{% url 'suspender_user' user.id %}" class="dropdown-item">
+                  Suspender
+                </a>
+              {% else %}
+                <a href="{% url 'ativar_user' user.id %}" class="dropdown-item">
+                  Ativar
+                </a>
+              {% endif %}
+            {% endif %}
         </div>
       </div>
     </td>

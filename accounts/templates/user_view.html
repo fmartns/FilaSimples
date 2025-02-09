@@ -1,0 +1,322 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Dashboard - Analytics{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboards-analytics.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+
+<div class="content-wrapper">
+    <!-- Content: Start -->
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row">
+            <div class="col-xl-4 col-lg-5 order-1 order-md-0">
+                <div class="card mb-6">
+                    <div class="card-body pt-12">
+                        <div class="user-avatar-section">
+                            <div class="d-flex align-items-center flex-column">
+                                <img class="img-fluid rounded mb-4" src="{{ viewed_user.foto.url }}" height="120" width="120" alt="User avatar">
+                                <div class="user-info text-center">
+                                    <h5>{{ viewed_user.first_name }} {{ viewed_user.last_name }}</h5>
+                                    <span class="badge bg-label-secondary">
+                                        {% if viewed_user.is_superuser %}
+                                        Administrador
+                                        {% else %}
+                                        {{ viewed_user.cargo.name }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-around flex-wrap my-6 gap-0 gap-md-3 gap-lg-4">
+                            <div class="d-flex align-items-center me-5 gap-4">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-primary rounded w-px-40 h-px-40">
+                                        <i class="bx bx-check bx-lg"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">1.23k</h5>
+                                    <span>Rotas Carregadas</span>
+                                </div>
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        {% if message.extra_tags == "user" %}
+                                            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}" id="alertUser">
+                                                {{ message }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <h5 class="pb-4 border-bottom mb-4">Detalhes</h5>
+                        <div class="info-container">
+                            <ul class="list-unstyled mb-6">
+                                <li class="mb-2">
+                                    <span class="h6">Shopee ID:</span>
+                                    <span>{{ viewed_user.shopee_id }}</span>
+                                </li>
+                                <li class="mb-2">
+                                    <span class="h6">Email:</span>
+                                    <span>{{ viewed_user.email }}</span>
+                                </li>
+                                <li class="mb-2">
+                                    <span class="h6">Status:</span>
+                                    <span>
+                                        {% if viewed_user.is_active == False and viewed_user.last_login == None %} 
+                                            Pendente
+                                        {% elif viewed_user.is_active == False %}
+                                            Suspenso
+                                        {% else %}
+                                            Ativo
+                                        {% endif %}
+                                    </span>
+                                </li>
+                                <li class="mb-2">
+                                    <span class="h6">Telefone:</span>
+                                    <span>{{ viewed_user.telefone }}</span>
+                                </li>
+                            </ul>
+                            <div class="d-flex justify-content-center">
+                                <a href="javascript:;" class="btn btn-primary me-4" data-bs-target="#editUser" data-bs-toggle="modal">Editar</a>
+                                {% if viewed_user.is_active == False %}
+                                    <a href="{% url 'ativar_user' viewed_user.id %}" class="btn bg-label-success">Ativar</a>
+                                {% else %}
+                                    <!-- Botão chama o modal de confirmação -->
+                                    <button class="btn bg-label-danger" data-bs-toggle="modal" data-bs-target="#confirmSuspendModal">
+                                        Suspender
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% block content_rotas %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<!-- Edit User Modal -->
+<!-- Modal de Edição -->
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUser" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-simple modal-edit-user">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="text-center mb-6">
+          <h4 class="mb-2">Editar Informações do Usuário</h4>
+        </div>
+        <form id="editUserForm" class="row g-6" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+            <div class="d-flex align-items-start align-items-sm-center gap-6 pb-4 border-bottom">
+                <img src="{{ viewed_user.foto.url }}" alt="user-avatar" class="d-block w-px-100 h-px-100 rounded" id="uploadedAvatar">
+                <div class="button-wrapper">
+                    <label for="upload" class="btn btn-primary me-3 mb-4" tabindex="0">
+                        <span class="d-none d-sm-block">Upload nova foto</span>
+                        <i class="bx bx-upload d-block d-sm-none"></i>
+                        <input type="file" id="upload" name="foto" class="account-file-input" hidden accept="image/png, image/jpeg">
+                    </label>
+                    <button type="button" class="btn btn-outline-secondary account-image-reset mb-4" id="resetImage">
+                        <i class="bx bx-reset d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Reset</span>
+                    </button>
+                    <div>Permitido JPG, GIF ou PNG. Tamanho máximo: 800K</div>
+                </div>
+            </div>
+        </div>
+
+
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="editUserFirstName">Nome</label>
+            <input type="text" id="editUserFirstName" name="first_name" class="form-control" placeholder="Nome" value="{{ viewed_user.first_name }}">
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="editUserLastName">Sobrenome</label>
+            <input type="text" id="editUserLastName" name="last_name" class="form-control" placeholder="Sobrenome" value="{{ viewed_user.last_name }}">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="editUserEmail">Email</label>
+            <input type="email" id="editUserEmail" name="email" class="form-control" placeholder="Email" value="{{ viewed_user.email }}">
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="editUserShopeeId">Shopee ID</label>
+            <input type="text" id="editUserShopeeId" name="shopee_id" class="form-control" placeholder="Shopee ID" value="{{ viewed_user.shopee_id }}">
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="editUserPhone">Telefone</label>
+            <div class="input-group">
+              <span class="input-group-text">BR (+55)</span>
+              <input type="text" id="editUserPhone" name="telefone" class="form-control phone-number-mask" placeholder="Telefone" value="{{ viewed_user.telefone }}">
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="editUserCargo">Cargo</label>
+            <select id="editUserCargo" name="cargo" class="form-select">
+              {% for grupo in grupos %}
+                <option value="{{ grupo.id }}" {% if viewed_user.cargo.id == grupo.id %}selected{% endif %}>
+                  {{ grupo.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12 text-center">
+            <a href="{% url 'user_view' viewed_user.id %}?edit_user_modal=true">
+                <button type="submit" class="btn btn-primary me-3">Salvar Alterações</button>
+            </a>
+            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/ Edit User Modal -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const uploadInput = document.getElementById("upload");
+    const avatarImage = document.getElementById("uploadedAvatar");
+    const resetButton = document.getElementById("resetImage");
+    const form = document.getElementById("editUserForm");
+
+    let originalAvatar = avatarImage.src;  // Salva a imagem original
+
+    // Preview da nova imagem ao selecionar arquivo
+    uploadInput.addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarImage.src = e.target.result;  // Atualiza a imagem no modal
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Reset para a imagem original do usuário
+    resetButton.addEventListener("click", function() {
+        avatarImage.src = originalAvatar;
+        uploadInput.value = "";  // Remove o arquivo selecionado
+    });
+
+    // Envio do formulário via AJAX
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+        let formData = new FormData(form);
+        formData.append("edit_user", "true");  // 🔹 Garante que seja uma edição de usuário
+
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.tipo === "user") {
+                location.reload(); // Atualiza a página após salvar
+            } else {
+                alert("Erro ao salvar as alterações.");
+            }
+        });
+    });
+});
+</script>
+
+
+
+
+<!--/ Edit User Modal -->
+
+<!-- Modal de Confirmação para Suspensão -->
+<div class="modal fade" id="confirmSuspendModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Suspensão</h5>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza de que deseja suspender o usuário <strong>{{ viewed_user.first_name }} {{ viewed_user.last_name }}</strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a href="{% url 'suspender_user' viewed_user.id %}" class="btn btn-danger">Confirmar Suspensão</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Obtém os parâmetros da URL
+    const params = new URLSearchParams(window.location.search);
+    
+    // Verifica se o parâmetro "edit_user_modal" está presente
+    if (params.has("edit_user_modal")) {
+        var editUserModal = new bootstrap.Modal(document.getElementById("editUser"));
+        editUserModal.show();
+    }
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+
+    // Verifica se o parâmetro "edit_user_modal" está na URL e abre o modal
+    if (params.has("edit_user_modal")) {
+        var editUserModal = new bootstrap.Modal(document.getElementById("editUser"));
+        editUserModal.show();
+
+        // Remover o parâmetro da URL sem recarregar a página
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Fecha o modal e remove o parâmetro da URL ao clicar no botão "Cancelar"
+    document.querySelector("#editUser .btn-label-secondary").addEventListener("click", function () {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    });
+
+    // Remove o parâmetro da URL após salvar com sucesso
+    document.getElementById("editUserForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        let formData = new FormData(this);
+
+        fetch(this.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value }
+        })
+        .then(response => response.json());
+    });
+});
+</script>
+
+
+{% endblock %}

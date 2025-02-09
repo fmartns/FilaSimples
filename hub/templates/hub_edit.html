@@ -1,0 +1,86 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Editar Hub{% endblock %}
+
+{% block content %}
+  <div class="col-xl-8">
+    <div class="card mb-6">
+      <h5 class="card-header">Editar Informações do Hub</h5>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-4 row">
+            <label for="id_name" class="col-md-3 col-form-label">Nome</label>
+            <div class="col-md-9">
+              <input class="form-control" type="text" name="name" id="id_name" value="{{ form.name.value }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_descricao" class="col-md-3 col-form-label">Descrição</label>
+            <div class="col-md-9">
+              <textarea class="form-control" name="descricao" id="id_descricao" required>{{ form.descricao.value }}</textarea>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_localizacao" class="col-md-3 col-form-label">Localização</label>
+            <div class="col-md-9">
+              <input class="form-control" type="text" name="localizacao" id="id_localizacao" value="{{ form.localizacao.value }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_telefone" class="col-md-3 col-form-label">Telefone</label>
+            <div class="col-md-9">
+              <input class="form-control" type="text" name="telefone" id="id_telefone" value="{{ form.telefone.value }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_email" class="col-md-3 col-form-label">E-mail</label>
+            <div class="col-md-9">
+              <input class="form-control" type="email" name="email" id="id_email" value="{{ form.email.value }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_horario_abertura" class="col-md-3 col-form-label">Horário de Abertura</label>
+            <div class="col-md-9">
+              <input class="form-control" type="time" name="horario_abertura" id="id_horario_abertura" value="{{ form.horario_abertura.value }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_horario_fechamento" class="col-md-3 col-form-label">Horário de Fechamento</label>
+            <div class="col-md-9">
+              <input class="form-control" type="time" name="horario_fechamento" id="id_horario_fechamento" value="{{ form.horario_fechamento.value }}" required>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_responsavel" class="col-md-3 col-form-label">Responsável</label>
+            <div class="col-md-9">
+              {{ form.responsavel }}
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="id_contato_responsavel" class="col-md-3 col-form-label">Contato do Responsável</label>
+            <div class="col-md-9">
+              <input class="form-control" type="text" name="contato_responsavel" id="id_contato_responsavel" value="{{ form.contato_responsavel.value }}" required>
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -15,6 +15,7 @@ class PlanoCarregamento(models.Model):
     data_fim = models.DateField()
     horario_fim = models.TimeField()
     planilha = models.FileField(upload_to=arquivo_planilha_path, blank=True, null=True)
+    atualizacao_automatica = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         """
@@ -77,7 +78,7 @@ class PlanoCarregamento(models.Model):
             print(f"📊 Colunas encontradas: {list(df.columns)}")
 
             # 🔥 Define as colunas esperadas
-            colunas_esperadas = {'LETRA', 'CIDADE', 'KM', 'ID'}
+            colunas_esperadas = {'AT', 'LETRA', 'CIDADE', 'KM', 'ID'}
             colunas_faltantes = colunas_esperadas - set(df.columns)
 
             if colunas_faltantes:
@@ -85,7 +86,7 @@ class PlanoCarregamento(models.Model):
                 return
 
             # 🔥 Renomeia colunas para combinar com o modelo Django
-            df.rename(columns={'LETRA': 'gaiola', 'ID': 'user_id'}, inplace=True)
+            df.rename(columns={'AT': 'AT', 'LETRA': 'gaiola', 'ID': 'user_id'}, inplace=True)
 
             # 🔥 Remove rotas antigas associadas ao plano
             Rota.objects.filter(plano=self).delete()
@@ -106,6 +107,7 @@ class PlanoCarregamento(models.Model):
                 try:
                     Rota.objects.create(
                         plano=self,
+                        AT=row['AT'],
                         gaiola=row['gaiola'],
                         cidade=row['CIDADE'],
                         km=row['KM'],
@@ -131,10 +133,24 @@ class Rota(models.Model):
     def __str__(self):
         return f'{self.AT} - {self.gaiola}'
 
+class Bancada(models.Model):
+    name = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+    
+class BancadaPlano(models.Model):
+    bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
+    plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
+    operador = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
+    senha = models.ForeignKey('Senha', on_delete=models.CASCADE)
+    status = models.IntegerField(default=0)
+
 class Senha(models.Model):
     user = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
     plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
-    patio = models.IntegerField(default=0)
+    status = models.IntegerField(default=0)
     class Meta:
         unique_together = ('user', 'plano')
 

@@ -1,0 +1,70 @@
+<tbody class="table-border-bottom-0">
+{% for banc in bancadas %}
+<tr>
+    <td>{{ banc.name }}</td>
+    <td>
+        {% if banc.is_active == True %}
+            <span class="badge bg-label-success me-1">Ativa</span>
+        {% else %}
+            <span class="badge bg-label-danger me-1">Inativa</span>
+        {% endif %}
+    </td>
+    <td class="dtr-hidden">
+        <div class="dropdown-menu dropdown-menu-end m-0">
+            <a href="#" class="dropdown-item">
+                Editar
+            </a>
+            <a href="#" class="dropdown-item">
+                Ativar
+            </a>
+        </div>
+    </td>
+    <td>
+    <div class="dropdown">
+        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+        <i class="bx bx-dots-vertical-rounded"></i>
+        </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'bancada_edit' banc.id %}"><i class="bx bx-edit me-1"></i> Editar</a>
+                <a class="dropdown-item" href="#"><i class="bx bx-trash me-1"></i> Excluir</a>
+            </div>
+    </div>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+
+<!-- Paginação -->
+<div class="card-footer d-flex justify-content-between align-items-center">
+    <div class="dataTables_paginate paging_simple_numbers">
+        <ul class="pagination mb-0">
+            {% if bancadas.has_previous %}
+            <li class="paginate_button page-item previous">
+                <a href="#" class="page-link pagination-link" data-page="{{ bancadas.previous_page_number }}">
+                    <i class="bx bx-chevron-left bx-18px"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="paginate_button page-item previous disabled">
+                <a class="page-link"><i class="bx bx-chevron-left bx-18px"></i></a>
+            </li>
+            {% endif %}
+
+            <li class="paginate_button page-item active">
+                <a href="#" class="page-link">{{ bancadas.number }}</a>
+            </li>
+
+            {% if bancadas.has_next %}
+            <li class="paginate_button page-item next">
+                <a href="#" class="page-link pagination-link" data-page="{{ bancadas.next_page_number }}">
+                    <i class="bx bx-chevron-right bx-18px"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="paginate_button page-item next disabled">
+                <a class="page-link"><i class="bx bx-chevron-right bx-18px"></i></a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

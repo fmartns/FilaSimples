@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import PlanoCarregamento, Rota, Senha
+from .models import PlanoCarregamento, Rota, Senha, Bancada
 
 class PlanoCarregamentoForm(ModelForm):
     class Meta:
@@ -14,4 +14,9 @@ class RotasForm(ModelForm):
 class SenhaForm(ModelForm):
     class Meta:
         model = Senha
+        fields = '__all__'
+
+class BancadaForm(ModelForm):
+    class Meta:
+        model = Bancada
         fields = '__all__'

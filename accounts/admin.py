@@ -8,7 +8,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('is_staff', 'is_superuser', 'is_active')
     fieldsets = (
         (None, {'fields': ('shopee_id', 'email', 'password')}),
-        ('Informações Pessoais', {'fields': ('first_name', 'last_name', 'telefone', 'tipo_usuario', 'tipo_veiculo')}),
+        ('Informações Pessoais', {'fields': ('first_name', 'last_name', 'telefone', 'cargo', 'tipo_veiculo')}),
         ('Permissões', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
     )
     add_fieldsets = (

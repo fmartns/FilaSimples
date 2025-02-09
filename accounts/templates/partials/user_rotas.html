@@ -1,0 +1,151 @@
+{% extends 'user_view.html' %}
+
+{% block content_rotas %}
+<div class="col-xl-7 col-lg-7 order-0 order-md-1">
+    <!-- User Pills -->
+    <div class="nav-align-top">
+        <ul class="nav nav-pills flex-column flex-md-row mb-6">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'user_view' viewed_user.id %}">
+                    <i class="bx bx-car bx-sm me-1_5"></i>Rotas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'user_security' viewed_user.id %}">
+                    <i class="bx bx-lock-alt bx-sm me-1_5"></i>Segurança
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Project table -->
+    <div class="card mb-6">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="me-3">
+                        <div class="dataTables_length">
+                            <label>
+                                <select id="entriesSelect" name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" class="form-select mx-0">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <div class="dt-action-buttons text-xl-end text-lg-start text-md-end text-start d-flex align-items-center justify-content-end flex-md-row flex-column mb-6 mb-md-0 mt-n6 mt-md-0 gap-md-5">
+                        <div id="DataTables_Table_0_filter" class="dataTables_filter">
+                            <label>
+                                <input type="search" id="searchInput" class="form-control ms-0" placeholder="Pesquisar.." aria-controls="DataTables_Table_0">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="table datatable-project dataTable no-footer dtr-column collapsed" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Gaiola</th>
+                    <th>AT</th>
+                    <th>Cidade</th>
+                    <th>KM</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="rota-table">
+                {% for rota in rotas %}
+                <tr data-start-date="{{ rota.data_inicio }}" data-end-date="{{ rota.data_fim }}">
+                    <td class="sorting_1">
+                        <div class="d-flex justify-content-start align-items-center rota-name">
+                            <div class="avatar-wrapper">
+                                <div class="avatar me-4">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">
+                                        <i class="bx bxs-truck bx-lg"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <a class="text-heading fw-medium" href="#">{{ rota.gaiola }}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-truncate d-flex align-items-center text-heading">{{ rota.AT }}</span>
+                    </td>
+                    <td>
+                        <span class="text-heading">{{ rota.cidade }}</span>
+                    </td>
+                    <td>
+                        <span class="text-heading">{{ rota.km }}</span>
+                    </td>
+                    <td>
+                        {% if hoje < rota.inicio_datetime %}
+                            <span class="badge bg-label-warning">Aguardando início</span>
+                        {% elif hoje >= rota.inicio_datetime and hoje <= rota.fim_datetime %}
+                            <span class="badge bg-label-success">Em andamento</span>
+                        {% else %}
+                            <span class="badge bg-label-danger">Finalizada</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const tableBody = document.querySelector("#rota-table"); // Corrigido para o tbody correto
+    const entriesSelect = document.getElementById("entriesSelect");
+
+    function fetchUsers(page = 1) {
+        let query = searchInput.value.trim();
+        let limit = entriesSelect.value;
+        let userId = "{{ viewed_user.id }}";
+
+        fetch(`{% url 'search_user_rota' %}?user_id=${userId}&term=${query}&limit=${limit}&page=${page}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP! Status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                console.log("Atualizando tabela...");
+                
+                if (!tableBody) {
+                    console.error("Erro: tbody não encontrado!");
+                    return;
+                }
+
+                tableBody.innerHTML = html; // Atualiza a tabela dinamicamente
+                updatePaginationListeners();
+            })
+            .catch(error => console.error('Erro na busca:', error));
+    }
+
+    function updatePaginationListeners() {
+        document.querySelectorAll(".pagination-link").forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                let page = this.dataset.page;
+                fetchUsers(page);
+            });
+        });
+    }
+
+    searchInput.addEventListener("keyup", () => fetchUsers(1));
+    entriesSelect.addEventListener("change", () => fetchUsers(1));
+
+    fetchUsers();  // Chama a função ao carregar a página
+});
+</script>
+{% endblock %}
