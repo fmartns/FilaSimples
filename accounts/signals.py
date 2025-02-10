@@ -10,19 +10,24 @@ def store_user_device(sender, request, user, **kwargs):
     device = request.META.get("HTTP_USER_AGENT", "Desconhecido")
     
     # Obter localização (opcional, via API externa)
-    location = get_ip_location(ip)  # Defina essa função se quiser localização
+    location = get_ip_location(ip)
 
-    # Verifica se o dispositivo já foi registrado antes
-    device_entry, created = UserDevice.objects.get_or_create(
-        user=user,
-        ip_address=ip,
-        device=device,
-        defaults={"last_login": now(), "location": location},
-    )
-    
-    if not created:
+    # Buscar o primeiro dispositivo já registrado para evitar erro de múltiplos retornos
+    device_entry = UserDevice.objects.filter(user=user, device=device).first()
+
+    if device_entry:
         device_entry.last_login = now()
+        device_entry.ip_address = ip  # Atualiza IP caso tenha mudado
+        device_entry.location = location  # Atualiza localização
         device_entry.save()
+    else:
+        UserDevice.objects.create(
+            user=user,
+            device=device,
+            ip_address=ip,
+            location=location,
+            last_login=now()
+        )
 
 def get_client_ip(request):
     """ Obtém o IP do usuário """

@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import plano_views, bancada_views
+from .views import plano_views, bancada_views, fila_views, operador_bancada_views
 
 urlpatterns = [
+    path('fila/', fila_views.FilaView.as_view(template_name="fila_view.html"), name='fila_view'),
     path('plano/', plano_views.PlanosView.as_view(template_name="planos_view.html"), name='planos_view'),
     path('search-planos/', plano_views.search_planos, name='search_planos'),
     path('plano/adicionar/', plano_views.PlanosAdd.as_view(template_name="plano_add.html"), name='plano_add'),
@@ -12,4 +13,12 @@ urlpatterns = [
     path('search-bancadas/', bancada_views.search_bancadas, name='search_bancadas'),
     path('bancada/adicionar/', bancada_views.BancadasAdd.as_view(template_name="bancada_add.html"), name='bancada_add'),
     path('bancada/editar/<int:bancada_id>/', bancada_views.BancadaEdit.as_view(template_name="bancada_edit.html"), name='bancada_edit'),
+    path('bancada/ativar/<int:bancada_id>/', bancada_views.BancadaAtivarDesativar, name='bancada_ativar_desativar'),
+    path('bancada/deletar/<int:bancada_id>/', bancada_views.BancadaDelete, name='bancada_delete'),
+    path('fila/entrar/', fila_views.EntrarFila, name='fila_entrar'),
+    path('operador/painel/', operador_bancada_views.OperadorPainelView.as_view(), name='operador_painel'),
+    path('operador/bancada/', operador_bancada_views.EntrarBancadaView.as_view(), name='entrar_bancada'),
+    path('operador/chamar/<int:senha_id>/', operador_bancada_views.ChamarUsuarioView.as_view(), name='chamar_usuario'),
+    path('operador/iniciar/<int:senha_id>/', operador_bancada_views.IniciarCarregamentoView.as_view(), name='iniciar_carregamento'),
+    path('operador/finalizar/<int:senha_id>/', operador_bancada_views.FinalizarCargaView.as_view(), name='finalizar_carga'),
 ]

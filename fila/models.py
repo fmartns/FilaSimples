@@ -15,7 +15,7 @@ class PlanoCarregamento(models.Model):
     data_fim = models.DateField()
     horario_fim = models.TimeField()
     planilha = models.FileField(upload_to=arquivo_planilha_path, blank=True, null=True)
-    atualizacao_automatica = models.BooleanField(default=False)
+    atualizacao_automatica = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         """
@@ -136,6 +136,7 @@ class Rota(models.Model):
 class Bancada(models.Model):
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
+    ocupada = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -144,15 +145,40 @@ class BancadaPlano(models.Model):
     bancada = models.ForeignKey(Bancada, on_delete=models.CASCADE)
     plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
     operador = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
-    senha = models.ForeignKey('Senha', on_delete=models.CASCADE)
+    senha = models.ForeignKey('Senha', on_delete=models.CASCADE, null=True, blank=True)
     status = models.IntegerField(default=0)
-
 class Senha(models.Model):
-    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        (1, "Pátio Externo"),
+        (2, "Pátio Interno"),
+        (3, "Mesa (Chamado)"),
+        (4, "Não Compareceu"),
+        (5, "Mesa (Carregando)"),
+        (6, "Ausente"),
+        (7, "Carga Finalizada"),
+        (8, "Imprevisto"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
-    status = models.IntegerField(default=0)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    
+    # Timestamps para controle da movimentação da senha
+    horario_chamado = models.DateTimeField(null=True, blank=True)
+    horario_comparecimento = models.DateTimeField(null=True, blank=True)
+    horario_finalizado = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         unique_together = ('user', 'plano')
 
     def __str__(self):
-        return f'{self.user} - {self.plano}'
+        return f"{self.user.username} - {self.get_status_display()}"
+    
+class SenhaHistorico(models.Model):
+    senha = models.ForeignKey(Senha, on_delete=models.CASCADE)
+    horario_chamado = models.DateTimeField(null=True, blank=True)
+    horario_comparecimento = models.DateTimeField(null=True, blank=True)
+    horario_finalizado = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Histórico - {self.senha.user.username}"

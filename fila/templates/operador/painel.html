@@ -1,0 +1,140 @@
+{% extends layout_path %}
+
+{% load static %}
+
+{% block title %}Painel do Operador{% endblock %}
+
+{% block content %}
+
+{% if bancada_plano %}
+
+<div class="alert alert-warning" role="alert"> Você está operando: {{ bancada_plano.bancada.name }}
+</div>
+<div class="card mb-6">
+  <div class="card-widget-separator-wrapper">
+    <div class="card-body card-widget-separator">
+      <div class="row gy-4 gy-sm-1 w-100">
+        <div class="col-sm-6 col-lg-3">
+          <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-4 pb-sm-0">
+            <div>
+              <p class="mb-1">Pátio Exterior</p>
+              <h4 class="mb-1">{{ status_count.patio_externo }}</h4>
+            </div>
+            <span class="avatar me-sm-6">
+              <span class="avatar-initial rounded w-px-44 h-px-44">
+                <i class="bx bx-store-alt bx-lg text-heading"></i>
+              </span>
+            </span>
+          </div>
+          <hr class="d-none d-sm-block d-lg-none me-6">
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-4 pb-sm-0">
+            <div>
+              <p class="mb-1">Pátio Interior</p>
+              <h4 class="mb-1">{{ status_count.patio_interno }}</h4>
+            </div>
+            <span class="avatar p-2 me-lg-6">
+              <span class="avatar-initial rounded w-px-44 h-px-44">
+                <i class="bx bx-laptop bx-lg text-heading"></i>
+              </span>
+            </span>
+          </div>
+          <hr class="d-none d-sm-block d-lg-none">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-xxl flex-grow-1 container-p-y px-0">
+  <div class="content-wrapper">
+    <div class="container-xxl flex-grow-1 container-p-y">
+      <div class="row w-100 mx-0 px-0">
+        <div class="col-xl-8 col-lg-7 order-0 order-md-0">
+          <div class="card mb-6">
+            <div class="card-body">
+              <table class="table datatable-project dataTable no-footer dtr-column collapsed" id="DataTables_Table_0">
+                <thead>
+                  <tr>
+                    <th>Gaiola</th>
+                    <th>AT</th>
+                    <th>Cidade</th>
+                    <th>KM</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rota-table">
+                {% for item in fila %}
+                <tr>
+                    <td>
+                    <div class="d-flex justify-content-start align-items-center rota-name">
+                        <div class="avatar-wrapper">
+                        <div class="avatar me-4">
+                            <span class="avatar-initial rounded-circle bg-label-secondary">
+                            <i class="bx bxs-truck bx-lg"></i>
+                            </span>
+                        </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                        <a class="text-heading fw-medium" href="#">
+                            {% if item.rota %} {{ item.rota.gaiola }} {% else %} - {% endif %}
+                        </a>
+                        </div>
+                    </div>
+                    </td>
+                    <td><span class="text-truncate d-flex align-items-center text-heading">
+                    {% if item.rota %} {{ item.rota.AT }} {% else %} - {% endif %}
+                    </span></td>
+                    <td><span class="text-heading">
+                    {% if item.rota %} {{ item.rota.cidade }} {% else %} - {% endif %}
+                    </span></td>
+                    <td><span class="text-heading">
+                    {{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }})
+                    </span></td>
+                    <td><span class="badge bg-label-success">{{ item.senha.get_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="alert alert-warning">Nenhuma senha na fila.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5 order-1 order-md-1">
+          <div class="card mb-6">
+            <div class="card-body pt-12">
+              <div class="user-avatar-section text-center">
+                <img class="img-fluid rounded mb-4" src="/static/profile-pictures/102.png" height="120" width="120" alt="User avatar">
+                <h5>Alexandre Gonçalves</h5>
+                <span class="badge bg-label-secondary"> Gerentes de Hub </span>
+              </div>
+              <h5 class="pb-4 border-bottom mb-4">Detalhes</h5>
+              <ul class="list-unstyled mb-6">
+                <li><span class="h6">Shopee ID:</span> <span>167902</span></li>
+                <li><span class="h6">Email:</span> <span>alexandre711@gmail.com</span></li>
+                <li><span class="h6">Status:</span> <span> Suspenso </span></li>
+              </ul>
+              <div class="d-flex justify-content-center">
+                <a href="javascript:;" class="btn btn-primary me-4" data-bs-target="#editUser" data-bs-toggle="modal">Editar</a>
+                <a href="/accounts/user/102/ativar" class="btn bg-label-success">Ativar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+  <div class="alert alert-danger" role="alert"> Você não está operando nenhuma bancada. </div>
+{% endif %}
+
+{% endblock %}

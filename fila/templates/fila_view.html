@@ -1,0 +1,32 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Adicionar Plano de Carregamento{% endblock %}
+
+{% block content %}
+
+
+{% if plano_ativo %}
+    <p>Plano de carregamento ativo agora:</p>
+    <p>{{ plano_ativo.nome }} - Iniciado em {{ plano_ativo.data_inicio }} às {{ plano_ativo.horario_inicio }}</p>
+{% elif plano_proximo_ou_ultimo %}
+    <p>Não há um plano ativo no momento.</p>
+    
+    {% if plano_proximo_ou_ultimo.data_inicio >= today %}
+        <p>O próximo plano acontecerá em {{ plano_proximo_ou_ultimo.data_inicio }} às {{ plano_proximo_ou_ultimo.horario_inicio }}</p>
+    {% else %}
+        <p>O último plano aconteceu em {{ plano_proximo_ou_ultimo.data_fim }} às {{ plano_proximo_ou_ultimo.horario_fim }}</p>
+    {% endif %}
+{% else %}
+    <p>Não há planos cadastrados.</p>
+{% endif %}
+
+<a href="{% url 'fila_entrar' %}">
+    <button class="btn btn-primary">
+        <i class="bx bx-plus bx-sm me-1"></i> Entrar na fila
+    </button>
+</a>
+
+{% endblock %}

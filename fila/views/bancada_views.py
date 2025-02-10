@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 
 class BancadasView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
@@ -87,3 +88,21 @@ class BancadaEdit(LoginRequiredMixin, TemplateView):
             return redirect("bancadas_view")  # ✅ Alterado para 'bancadas_view'
 
         return self.render_to_response(self.get_context_data(**kwargs))
+
+@login_required
+def BancadaAtivarDesativar(request, bancada_id):
+    bancada = get_object_or_404(Bancada, id=bancada_id)
+    if bancada.is_active:
+        bancada.is_active = False
+    else:
+        bancada.is_active = True
+    bancada.save()
+
+    # Redireciona para a página anterior ou para a lista de usuários caso não tenha referer
+    return redirect(request.META.get('HTTP_REFERER', 'bancadas_view'))
+
+@login_required
+def BancadaDelete(request, bancada_id):
+    bancada = get_object_or_404(Bancada, id=bancada_id)
+    bancada.delete()
+    return redirect('bancadas_view')

@@ -24,10 +24,13 @@
         <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
         <i class="bx bx-dots-vertical-rounded"></i>
         </button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'bancada_edit' banc.id %}"><i class="bx bx-edit me-1"></i> Editar</a>
-                <a class="dropdown-item" href="#"><i class="bx bx-trash me-1"></i> Excluir</a>
-            </div>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'bancada_edit' banc.id %}"> Editar</a>
+            <a class="dropdown-item" href="{% url 'bancada_delete' banc.id %}"> Excluir</a>
+            <a class="dropdown-item" href="{% url 'bancada_ativar_desativar' banc.id %}">
+                {% if banc.is_active%} Desativar {% else %} Ativar {% endif %}
+            </a>
+        </div>
     </div>
     </td>
 </tr>

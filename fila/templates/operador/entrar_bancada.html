@@ -1,0 +1,31 @@
+{% extends layout_path %}
+{% load static %}
+
+{% block title %}Entrar em uma Bancada{% endblock %}
+
+{% block content %}
+
+{% if bancada_ocupada %}
+    <p class="alert alert-warning">
+        Você já está na bancada: <strong>{{ bancada_ocupada.name }}</strong>.
+    </p>
+{% else %}
+    <h3>Bancadas Disponíveis:</h3>
+    <ul>
+        {% for bancada in bancadas_disponiveis %}
+            <li>
+                <form method="post" action="{% url 'entrar_bancada' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="bancada_id" value="{{ bancada.id }}">
+                    <button type="submit" class="btn btn-primary">
+                        Entrar na Bancada {{ bancada.name }}
+                    </button>
+                </form>
+            </li>
+        {% empty %}
+            <p class="alert alert-info">Nenhuma bancada disponível no momento.</p>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% endblock %}

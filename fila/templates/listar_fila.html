@@ -1,0 +1,39 @@
+{% extends layout_path %}
+{% load static %}
+
+{% block title %}Fila de Atendimento{% endblock %}
+
+{% block content %}
+
+<h2>Fila de Atendimento</h2>
+
+<table>
+    <tr>
+        <th>Usuário</th>
+        <th>Status</th>
+        <th>Ações</th>
+    </tr>
+    {% for senha in fila %}
+    <tr>
+        <td>{{ senha.user.username }}</td>
+        <td>{{ senha.get_status_display }}</td>
+        <td>
+            {% if senha.status in "1,2" %}
+                <a href="{% url 'chamar_usuario' %}" class="btn btn-primary">Chamar</a>
+            {% endif %}
+            {% if senha.status == 3 %}
+                <a href="{% url 'registrar_comparecimento' senha.id %}" class="btn btn-success">Compareceu</a>
+            {% endif %}
+            {% if senha.status == 5 %}
+                <a href="{% url 'finalizar_carga' senha.id %}" class="btn btn-danger">Finalizar</a>
+            {% endif %}
+            {% if senha.status in "6,8" %}
+                <a href="{% url 'realocar_usuario' senha.id False %}" class="btn btn-warning">Realocar (original)</a>
+                <a href="{% url 'realocar_usuario' senha.id True %}" class="btn btn-secondary">Realocar (fim da fila)</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
