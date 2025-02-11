@@ -3,7 +3,7 @@ import random
 import os
 from faker import Faker
 from django.core.management.base import BaseCommand
-from accounts.models import User, TipoUsuario  # Ajuste para o seu app
+from accounts.models import User
 
 fake = Faker("pt_BR")
 
@@ -36,9 +36,6 @@ class Command(BaseCommand):
 
         # Renomeia colunas para facilitar o uso no script
         df.rename(columns={'NOME DRIVER': 'driver', 'ID': 'user_id'}, inplace=True)
-
-        # Obtém um Tipo de Usuário padrão, se existir
-        tipo_usuario_default = TipoUsuario.objects.first()
 
         # Criação dos usuários
         for _, row in df.iterrows():

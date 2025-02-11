@@ -67,12 +67,8 @@ class User(AbstractUser):
     foto = models.ImageField(upload_to=foto_caminho, null=True, blank=True, default='static/profile-pictures/default.jpg')
     shopee_id = models.IntegerField(unique=True)
     telefone = models.CharField(max_length=20)
-    cargo = models.ForeignKey(
-        Group,
-        on_delete=models.CASCADE,
-        default=1,
-        related_name='+',  # desabilita o reverse accessor para esse campo
-    )
+    cargo = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name="cargo_id")
+
     tipo_veiculo = models.ForeignKey(TipoVeiculo, on_delete=models.CASCADE, null=True, blank=True)
     placa = models.CharField(max_length=10, null=True, blank=True)
 

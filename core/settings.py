@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Storage
+    'storages',
+
     # Apps
     'accounts',
     'fila',
@@ -139,16 +142,6 @@ USE_TZ = True
 
 AUTH_USER_MODEL = 'accounts.User' 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Adicionando a configuração para servir os arquivos estáticos no modo de desenvolvimento
-STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Diretório onde seus arquivos estáticos ficam
-]
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -160,3 +153,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 THEME_LAYOUT_DIR = THEME_LAYOUT_DIR
 THEME_VARIABLES = THEME_VARIABLES
+
+# Diretório onde o Django busca os arquivos estáticos antes de enviá-los
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Verifique se este caminho contém seus arquivos estáticos
+]
+
+
+# Configurações do AWS S3
+AWS_ACCESS_KEY_ID = 'AKIAZPWFOJ7QHHMCX4KU'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 's3-prod-itajai'
+AWS_S3_REGION_NAME = 'us-east-1'  # Altere conforme necessário
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_FILE_OVERWRITE = False
+
+# Configuração do Django para armazenar arquivos no S3
+STORAGES = {
+    # Armazenamento de arquivos de mídia (imagens, uploads)
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    # Armazenamento de arquivos estáticos (CSS, JS)
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+    },
+}
+
+# URL para servir arquivos do S3
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+
+# Diretório raiz de arquivos estáticos (necessário para collectstatic)
+STATIC_ROOT = BASE_DIR / "staticfiles"

@@ -20,5 +20,10 @@ urlpatterns = [
     path('operador/bancada/', operador_bancada_views.EntrarBancadaView.as_view(), name='entrar_bancada'),
     path('operador/chamar/<int:senha_id>/', operador_bancada_views.ChamarUsuarioView.as_view(), name='chamar_usuario'),
     path('operador/iniciar/<int:senha_id>/', operador_bancada_views.IniciarCarregamentoView.as_view(), name='iniciar_carregamento'),
-    path('operador/finalizar/<int:senha_id>/', operador_bancada_views.FinalizarCargaView.as_view(), name='finalizar_carga'),
+    path('operador/finalizar/<int:senha_id>/', operador_bancada_views.FinalizarCargaView.as_view(), name='finalizar_carregamento'),
+    path('operador/nao-compareceu/<int:senha_id>/', operador_bancada_views.NaoCompareceuView.as_view(), name='nao_compareceu'),
+    path('operador/ausente/<int:senha_id>/', operador_bancada_views.AusenteView.as_view(), name='ausente'),
+    path('operador/imprevisto/<int:senha_id>/', operador_bancada_views.ImprevistoView.as_view(), name='imprevisto'),
+    path('operador/expulsar/<int:senha_id>/', operador_bancada_views.ExpulsoView.as_view(), name='expulsar'),
+    path('operador/patio-interno/<int:senha_id>/', operador_bancada_views.SubirPatioInternoView.as_view(), name='patio_interno'),
 ]

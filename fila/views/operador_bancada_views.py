@@ -7,6 +7,7 @@ from django.db import transaction
 from django.contrib.auth import get_user_model
 from fila.models import Senha, SenhaHistorico, PlanoCarregamento
 from fila.models import Bancada, BancadaPlano, Rota
+from django.db.models import Case, When, Value, IntegerField
 
 User = get_user_model()
 
@@ -38,7 +39,7 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
         # 🔄 Se não houver plano ativo, retorna sem exibir painel
         if not plano_ativo:
             print(f"⚠️ Nenhum plano de carregamento ativo no momento!")
-            return redirect('fila_view')  # Redireciona para a fila
+            return redirect('planos_view')
 
         # 🔍 Verifica se o operador está alocado em alguma bancada no plano ativo
         bancada_plano = BancadaPlano.objects.filter(operador=request.user, plano=plano_ativo).first()
@@ -46,6 +47,16 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
         if not bancada_plano:
             print(f"🔄 Redirecionando {request.user} para escolher uma bancada no plano {plano_ativo.id}.")
             return redirect('entrar_bancada')  # Se não estiver em uma bancada, redireciona
+
+        print("Id Plano Bancada: ", bancada_plano.plano.id)
+        print("Id Plano: ", plano_ativo.id)
+        print("Id Bancada: ", bancada_plano.bancada.id)
+        print("Id Operador: ", bancada_plano.operador.id)
+        print("Senha: ", bancada_plano.senha)
+
+        # se tiver senha vinculado ao bancado plano mostra a senha
+        print(f"🔍 Senha vinculada à bancada do operador {request.user}: {bancada_plano.senha}")
+
 
         return super().get(request, *args, **kwargs)
 
@@ -77,8 +88,19 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
         bancada_plano = BancadaPlano.objects.filter(operador=self.request.user, plano=plano_ativo).first()
         context['bancada_plano'] = bancada_plano
 
-        # 🔍 Obtém a fila de senhas associadas ao plano ativo e busca os usuários e rotas
-        fila = Senha.objects.filter(plano=plano_ativo, status__in=[1, 2, 6, 8]).select_related('user')
+
+# Obtém a fila de senhas associadas ao plano ativo
+        fila = Senha.objects.filter(plano=plano_ativo, status__in=[1, 2, 4, 6, 8]).select_related('user')
+
+        # Ordenação personalizada com prioridade:
+        fila = fila.annotate(
+            prioridade=Case(
+                When(status=2, then=Value(1)),  # Pátio Interno tem maior prioridade (1º lugar)
+                When(status=1, then=Value(2)),  # Pátio Externo tem 2ª prioridade
+                default=Value(3),  # Outros status em seguida
+                output_field=IntegerField()
+            )
+        ).order_by('prioridade', 'id')  # Ordena pela prioridade e depois pelo ID da senha
 
         # 🔗 Cruzando senha com a rota associada
         fila_com_rotas = []
@@ -95,6 +117,7 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
 
         context['fila'] = fila_com_rotas
 
+
         # 🔢 Contagem de senhas por status dentro do plano ativo
         context['status_count'] = {
             "patio_externo": Senha.objects.filter(plano=plano_ativo, status=1).count(),
@@ -106,10 +129,6 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
 
         return context
 
-
-
-
-
 class EntrarBancadaView(LoginRequiredMixin, TemplateView):
     """Permite que o operador entre em uma bancada disponível."""
 
@@ -120,22 +139,52 @@ class EntrarBancadaView(LoginRequiredMixin, TemplateView):
         context['user'] = self.request.user
 
         # Verifica se o operador já está em uma bancada
-        bancada_plano = BancadaPlano.objects.filter(operador=self.request.user).first()
 
-        if bancada_plano:
-            print(f"🔒 O operador {self.request.user} já está na bancada {bancada_plano.bancada.name}")
-            context['bancada_ocupada'] = bancada_plano.bancada  # Mostra a bancada ocupada
-            context['bancadas_disponiveis'] = []  # Não exibe outras bancadas
-        else:
-            # Buscar bancadas disponíveis (ativas e não ocupadas)
-            bancadas_disponiveis = Bancada.objects.filter(is_active=True, ocupada=False)
+        # Verifica se há um plano de carregamento acontecendno no horario atual
+        agora = timezone.now()
 
-            if bancadas_disponiveis.exists():
-                print(f"✔️ Bancadas disponíveis: {[b.name for b in bancadas_disponiveis]}")
-            else:
-                print("⚠️ Nenhuma bancada disponível.")
+        plano = None
+        for p in PlanoCarregamento.objects.all():
+            inicio_datetime = timezone.make_aware(
+                timezone.datetime.combine(p.data_inicio, p.horario_inicio),
+                timezone.get_current_timezone()
+            )
+            fim_datetime = timezone.make_aware(
+                timezone.datetime.combine(p.data_fim, p.horario_fim),
+                timezone.get_current_timezone()
+            )
 
-            context['bancadas_disponiveis'] = bancadas_disponiveis
+            if inicio_datetime <= agora <= fim_datetime:
+                plano = p
+                break
+
+            if not plano:
+                print("⚠️ Nenhum plano de carregamento ativo encontrado no GET.")
+
+        if plano:
+            print(f"✔️ Plano ativo encontrado: {plano.id}")
+            bancada_plano = BancadaPlano.objects.filter(operador=self.request.user, plano=plano.pk).first()
+
+            if bancada_plano:
+                print(f"🔒 O operador {self.request.user} já está na bancada {bancada_plano.bancada.name} no plano {bancada_plano.plano.id}")
+                return redirect('operador_painel')
+
+            if not bancada_plano:
+                context['bancadas_disponiveis'] = []
+  
+                bancadas_existentes = Bancada.objects.filter(is_active=True)
+                bancadas_ocupadas = BancadaPlano.objects.filter(plano=plano).values_list('bancada', flat=True)
+                bancadas_disponiveis = bancadas_existentes.exclude(id__in=bancadas_ocupadas)
+
+                if bancadas_disponiveis.exists():
+                    print(f"✔️ Bancadas disponíveis: {[b.name for b in bancadas_disponiveis]}")
+                else:
+                    print("⚠️ Nenhuma bancada disponível.")
+
+                context['bancadas_disponiveis'] = bancadas_disponiveis
+
+        if not plano:
+            print("⚠️ Nenhum plano de carregamento ativo encontrado.")
 
         return context
 
@@ -143,11 +192,6 @@ class EntrarBancadaView(LoginRequiredMixin, TemplateView):
         """Lida com o operador entrando na bancada."""
         bancada_id = request.POST.get("bancada_id")
         bancada = get_object_or_404(Bancada, id=bancada_id)
-
-        # Verificar se o operador já está em uma bancada
-        if BancadaPlano.objects.filter(operador=request.user).exists():
-            print(f"⚠️ O operador {request.user} já está em uma bancada!")
-            return redirect('operador_painel')
 
         # Buscar um plano ativo antes de associar a bancada
         agora = timezone.now()
@@ -168,12 +212,13 @@ class EntrarBancadaView(LoginRequiredMixin, TemplateView):
                 break
 
         if not plano_ativo:
-            print("⚠️ Nenhum plano ativo encontrado no POST.")
+            print("⚠️ Nenhum plano ativo encontrado.")
             return redirect('entrar_bancada')
-
-        # Marcar a bancada como ocupada
-        bancada.ocupada = True
-        bancada.save()
+        
+        # Verificar se o operador já está em uma bancada
+        if BancadaPlano.objects.filter(operador=request.user, plano=plano_ativo.pk).exists():
+            print(f"⚠️ O operador {request.user} já está em uma bancada!")
+            return redirect('operador_painel')
 
         # Criar o registro da bancada para o operador
         BancadaPlano.objects.create(
@@ -265,19 +310,55 @@ class FinalizarCargaView(LoginRequiredMixin, TemplateView):
             bancada_plano.save()
 
         return redirect('operador_painel')
-
-class GerenciarAusenteImprevistoView(LoginRequiredMixin, TemplateView):
-    """Permite mover usuários ausentes ou imprevistos para o final da fila ou manter a posição"""
+    
+class SubirPatioInternoView(LoginRequiredMixin, TemplateView):
+    """Marca um usuário como Pátio Interno (Status 2)"""
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
-        acao = kwargs['acao']  # 'final' ou 'manter'
+        senha.status = 2  # Pátio Interno
 
-        if acao == 'final':
-            senha.status = 2  # Volta para Pátio Interno
-            senha.horario_chamado = timezone.now()  # Atualiza horário para nova posição na fila
-        else:
-            senha.status = senha.status  # Mantém o mesmo status
+        senha.save()
+        return redirect('operador_painel')   
+class NaoCompareceuView(LoginRequiredMixin, TemplateView):
+    """Marca um usuário como Não Compareceu (Status 4)"""
+
+    def get(self, request, *args, **kwargs):
+        senha = get_object_or_404(Senha, id=kwargs['senha_id'])
+        senha.status = 4  # Não Compareceu
+
+        bancada_plano = BancadaPlano.objects.filter(senha=senha).first()
+        bancada_plano.senha = None
+        bancada_plano.save()
+
+        senha.save()
+        return redirect('operador_painel')
+    
+class AusenteView(LoginRequiredMixin, TemplateView):
+    """Marca um usuário como Ausente (Status 6)"""
+
+    def get(self, request, *args, **kwargs):
+        senha = get_object_or_404(Senha, id=kwargs['senha_id'])
+        senha.status = 6  # Não Compareceu
+
+        senha.save()
+        return redirect('operador_painel')
+class ImprevistoView(LoginRequiredMixin, TemplateView):
+    """Marca um usuário como Imprevisto (Status 8)"""
+
+    def get(self, request, *args, **kwargs):
+        senha = get_object_or_404(Senha, id=kwargs['senha_id'])
+        senha.status = 8  # Não Compareceu
+
+        senha.save()
+        return redirect('operador_painel')
+    
+class ExpulsoView(LoginRequiredMixin, TemplateView):
+    """Marca um usuário como Expulso (Status 9)"""
+
+    def get(self, request, *args, **kwargs):
+        senha = get_object_or_404(Senha, id=kwargs['senha_id'])
+        senha.status = 9  # Não Compareceu
 
         senha.save()
         return redirect('operador_painel')
