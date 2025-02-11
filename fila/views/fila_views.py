@@ -12,8 +12,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from fila.models import PlanoCarregamento, Senha  # Model de entrada na fila
+from django.db import transaction, IntegrityError
+from django.contrib.auth.decorators import permission_required
 
+@login_required
 class FilaView(LoginRequiredMixin, TemplateView):
+
+    permission_required = 'senha.view_senha'
+    template_name = 'fila_view.html'
     
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
@@ -56,9 +62,9 @@ class FilaView(LoginRequiredMixin, TemplateView):
 
         return context
 
-from django.db import transaction, IntegrityError
 
 @login_required
+@permission_required('senha.add_senha', raise_exception=True)
 def EntrarFila(request):
     user = request.user  # Obtém o usuário logado
     agora = timezone.now()  # Obtém o datetime atual com timezone

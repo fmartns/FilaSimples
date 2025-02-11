@@ -10,8 +10,13 @@ from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
 
 class BancadasView(LoginRequiredMixin, TemplateView):
+
+    permission_required = 'fila.view_bancada'
+    template_name="bancada_add.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context = TemplateLayout.init(self, context)
@@ -19,6 +24,8 @@ class BancadasView(LoginRequiredMixin, TemplateView):
         print(context['bancadas'])
         return context
     
+@login_required
+@permission_required('fila.view_bancada', raise_exception=True)
 def search_bancadas(request):
     limit = int(request.GET.get('limit', 10))
     page_number = request.GET.get('page', 1)
@@ -46,6 +53,8 @@ def search_bancadas(request):
 
     return render(request, "partials/bancadas_table.html", {"bancadas": page_obj, "paginator": paginator})
 
+@login_required
+@permission_required('fila.add_bancada', raise_exception=True)
 class BancadasAdd(LoginRequiredMixin, FormView):
     form_class = BancadaForm
     success_url = reverse_lazy("bancadas_view")
@@ -59,6 +68,8 @@ class BancadasAdd(LoginRequiredMixin, FormView):
         context = TemplateLayout.init(self, context)
         return context
     
+@login_required
+@permission_required('fila.change_bancada', raise_exception=True)
 class BancadaEdit(LoginRequiredMixin, TemplateView):
     template_name = "bancada_edit.html"
 
@@ -90,6 +101,7 @@ class BancadaEdit(LoginRequiredMixin, TemplateView):
         return self.render_to_response(self.get_context_data(**kwargs))
 
 @login_required
+@permission_required('fila.ativar_bancada', raise_exception=True)
 def BancadaAtivarDesativar(request, bancada_id):
     bancada = get_object_or_404(Bancada, id=bancada_id)
     if bancada.is_active:
@@ -102,6 +114,7 @@ def BancadaAtivarDesativar(request, bancada_id):
     return redirect(request.META.get('HTTP_REFERER', 'bancadas_view'))
 
 @login_required
+@permission_required('fila.delete_bancada', raise_exception=True)
 def BancadaDelete(request, bancada_id):
     bancada = get_object_or_404(Bancada, id=bancada_id)
     bancada.delete()

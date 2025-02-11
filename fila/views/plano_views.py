@@ -11,8 +11,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 import requests
 from django.core.files.base import ContentFile
+from django.contrib.auth.decorators import permission_required
 
 class PlanosView(LoginRequiredMixin, TemplateView):
+    
+    permission_required = 'plano.view_plano'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context = TemplateLayout.init(self, context)  # Inicializa o layout global
@@ -45,6 +49,7 @@ def search_planos(request):
 class PlanosAdd(LoginRequiredMixin, FormView):
     form_class = PlanoCarregamentoForm
     success_url = reverse_lazy("planos_view")
+    permission_required = 'plano.add_plano'
 
     def form_valid(self, form):
         form.instance.atualizacao_automatica = True
@@ -58,6 +63,7 @@ class PlanosAdd(LoginRequiredMixin, FormView):
 
 class PlanoEdit(LoginRequiredMixin, TemplateView):
     template_name = "editar_plano.html"
+    permission_required = 'plano.change_plano'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -87,12 +93,14 @@ class PlanoEdit(LoginRequiredMixin, TemplateView):
         return self.render_to_response(self.get_context_data(**kwargs))
 
 @login_required
+@permission_required('plano.delete_plano', raise_exception=True)
 def PlanoDelete(request, plano_id):
     plano = get_object_or_404(PlanoCarregamento, id=plano_id)
     plano.delete()
     return redirect('planos_view')
 
 @login_required
+@permission_required('plano.change_plano', raise_exception=True)
 def PlanoPlanilhaDelete(request, plano_id):
     plano = get_object_or_404(PlanoCarregamento, id=plano_id)
 

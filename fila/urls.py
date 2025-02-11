@@ -2,7 +2,7 @@ from django.urls import path
 from .views import plano_views, bancada_views, fila_views, operador_bancada_views
 
 urlpatterns = [
-    path('fila/', fila_views.FilaView.as_view(template_name="fila_view.html"), name='fila_view'),
+    path('fila/', fila_views.FilaView, name='fila_view'),
     path('plano/', plano_views.PlanosView.as_view(template_name="planos_view.html"), name='planos_view'),
     path('search-planos/', plano_views.search_planos, name='search_planos'),
     path('plano/adicionar/', plano_views.PlanosAdd.as_view(template_name="plano_add.html"), name='plano_add'),
@@ -11,8 +11,8 @@ urlpatterns = [
     path('plano/deletar-planilha/<int:plano_id>/', plano_views.PlanoPlanilhaDelete, name='plano_planilha_delete'),
     path('bancadas/', bancada_views.BancadasView.as_view(template_name="bancadas_view.html"), name='bancadas_view'),
     path('search-bancadas/', bancada_views.search_bancadas, name='search_bancadas'),
-    path('bancada/adicionar/', bancada_views.BancadasAdd.as_view(template_name="bancada_add.html"), name='bancada_add'),
-    path('bancada/editar/<int:bancada_id>/', bancada_views.BancadaEdit.as_view(template_name="bancada_edit.html"), name='bancada_edit'),
+    path('bancada/adicionar/', bancada_views.BancadasAdd, name='bancada_add'),
+    path('bancada/editar/<int:bancada_id>/', bancada_views.BancadaEdit, name='bancada_edit'),
     path('bancada/ativar/<int:bancada_id>/', bancada_views.BancadaAtivarDesativar, name='bancada_ativar_desativar'),
     path('bancada/deletar/<int:bancada_id>/', bancada_views.BancadaDelete, name='bancada_delete'),
     path('fila/entrar/', fila_views.EntrarFila, name='fila_entrar'),

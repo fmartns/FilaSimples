@@ -8,14 +8,14 @@ from django.contrib.auth import get_user_model
 from fila.models import Senha, SenhaHistorico, PlanoCarregamento
 from fila.models import Bancada, BancadaPlano, Rota
 from django.db.models import Case, When, Value, IntegerField
+from django.contrib.auth.decorators import permission_required
 
 User = get_user_model()
-
-
 class OperadorPainelView(LoginRequiredMixin, TemplateView):
     """Painel do Operador: Exibe a fila inteira ou apenas o usuário chamado, verificando se há um plano ativo."""
 
     template_name = "operador/painel.html"
+    permission_required = 'fila.view_bancadaplano'
 
     def get(self, request, *args, **kwargs):
         # 🔍 Verifica se há um plano ativo no momento
@@ -133,6 +133,7 @@ class EntrarBancadaView(LoginRequiredMixin, TemplateView):
     """Permite que o operador entre em uma bancada disponível."""
 
     template_name = "operador/entrar_bancada.html"
+    permission_required = 'fila.add_bancadaplano'
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
@@ -235,6 +236,7 @@ class EntrarBancadaView(LoginRequiredMixin, TemplateView):
 
 class ChamarUsuarioView(LoginRequiredMixin, TemplateView):
     """Chama um usuário da fila, priorizando o Pátio Interno"""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha_id = kwargs.get('senha_id')
@@ -268,10 +270,9 @@ class ChamarUsuarioView(LoginRequiredMixin, TemplateView):
 
         return redirect('operador_painel')
 
-
-
 class IniciarCarregamentoView(LoginRequiredMixin, TemplateView):
     """Inicia o carregamento de um usuário (muda para status 5: Mesa Carregando)."""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
@@ -290,6 +291,7 @@ class IniciarCarregamentoView(LoginRequiredMixin, TemplateView):
 
 class FinalizarCargaView(LoginRequiredMixin, TemplateView):
     """Finaliza o carregamento e libera a bancada."""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
@@ -313,6 +315,7 @@ class FinalizarCargaView(LoginRequiredMixin, TemplateView):
     
 class SubirPatioInternoView(LoginRequiredMixin, TemplateView):
     """Marca um usuário como Pátio Interno (Status 2)"""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
@@ -322,6 +325,7 @@ class SubirPatioInternoView(LoginRequiredMixin, TemplateView):
         return redirect('operador_painel')   
 class NaoCompareceuView(LoginRequiredMixin, TemplateView):
     """Marca um usuário como Não Compareceu (Status 4)"""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
@@ -336,6 +340,7 @@ class NaoCompareceuView(LoginRequiredMixin, TemplateView):
     
 class AusenteView(LoginRequiredMixin, TemplateView):
     """Marca um usuário como Ausente (Status 6)"""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
@@ -345,6 +350,7 @@ class AusenteView(LoginRequiredMixin, TemplateView):
         return redirect('operador_painel')
 class ImprevistoView(LoginRequiredMixin, TemplateView):
     """Marca um usuário como Imprevisto (Status 8)"""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])
@@ -355,6 +361,7 @@ class ImprevistoView(LoginRequiredMixin, TemplateView):
     
 class ExpulsoView(LoginRequiredMixin, TemplateView):
     """Marca um usuário como Expulso (Status 9)"""
+    permission_required = 'fila.chamar_usuario' 
 
     def get(self, request, *args, **kwargs):
         senha = get_object_or_404(Senha, id=kwargs['senha_id'])

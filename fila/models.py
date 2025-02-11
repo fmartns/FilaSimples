@@ -20,6 +20,11 @@ class PlanoCarregamento(models.Model):
     planilha = models.FileField(upload_to=arquivo_planilha_path, blank=True, null=True)
     atualizacao_automatica = models.BooleanField(default=True)
 
+    class Meta:
+        permissions = [
+            ("process_planilha", "Pode processar a planilha de um plano"),
+        ]
+
     def save(self, *args, **kwargs):
         """
         Salva o arquivo corretamente antes de tentar renomeá-lo.
@@ -118,6 +123,7 @@ class Rota(models.Model):
     km = models.FloatField()
     user = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
 
+
     def __str__(self):
         return f'{self.AT} - {self.gaiola}'
 
@@ -125,6 +131,10 @@ class Bancada(models.Model):
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     ocupada = models.BooleanField(default=False)
+    class Meta:
+        permissions = [
+            ("ativar_bancada", "Pode ativar/desativar bancadas"),
+        ]
 
     def __str__(self):
         return self.name
@@ -135,6 +145,14 @@ class BancadaPlano(models.Model):
     operador = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
     senha = models.ForeignKey('Senha', on_delete=models.CASCADE, null=True, blank=True)
     status = models.IntegerField(default=0)
+
+    class Meta:
+        permissions = [
+            ("chamar_usuario", "Pode chamar usuário"),
+        ]
+
+
+
 class Senha(models.Model):
     STATUS_CHOICES = [
         (1, "Pátio Externo"),
@@ -151,11 +169,10 @@ class Senha(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
     status = models.IntegerField(choices=STATUS_CHOICES, default=1)
-    
-    # Timestamps para controle da movimentação da senha
     horario_chamado = models.DateTimeField(null=True, blank=True)
     horario_comparecimento = models.DateTimeField(null=True, blank=True)
     horario_finalizado = models.DateTimeField(null=True, blank=True)
+
 
     class Meta:
         unique_together = ('user', 'plano')
