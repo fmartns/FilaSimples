@@ -27,19 +27,21 @@
         <div class="text-truncate" data-i18n="Dashboards">Página Inicial</div>
       </a>
     </li>
+    
     <li class="menu-item">
       <a class="menu-link" target="_blank">
         <i class="menu-icon tf-icons bx bx-support"></i>
         <div class="text-truncate" data-i18n="Support">Suporte</div>
       </a>
     </li>
+    {% if perms.fila.view_senha  %}
     <li class="menu-item">
       <a href="{% url 'fila_view' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-list-ul"></i>
         <div class="text-truncate" data-i18n="Fila">Fila</div>
       </a>
     </li>
-
+    {% endif %}
     {% if perms.fila.view_bancadaplano  %}
     <li class="menu-item">
       <a href="{% url 'operador_painel' %}" class="menu-link">

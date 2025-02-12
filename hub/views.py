@@ -7,7 +7,7 @@ from hub.models import Hub
 from hub.forms import HubForm
 
 class HubEditView(LoginRequiredMixin, UpdateView):
-    template_name = "hub_edit.html"
+    
     form_class = HubForm
     success_url = reverse_lazy("hub_edit")
 

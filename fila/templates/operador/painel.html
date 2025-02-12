@@ -17,12 +17,12 @@
         <div class="col-sm-6 col-lg-3">
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-4 pb-sm-0">
             <div>
-              <p class="mb-1">Pátio Exterior</p>
+              <p class="mb-1">Pátio Externo</p>
               <h4 class="mb-1">{{ status_count.patio_externo }}</h4>
             </div>
             <span class="avatar me-sm-6">
               <span class="avatar-initial rounded w-px-44 h-px-44">
-                <i class="bx bx-store-alt bx-lg text-heading"></i>
+                <i class="bx bx-loader bx-rotate-180 text-heading"></i>
               </span>
             </span>
           </div>
@@ -36,7 +36,7 @@
             </div>
             <span class="avatar p-2 me-lg-6">
               <span class="avatar-initial rounded w-px-44 h-px-44">
-                <i class="bx bx-laptop bx-lg text-heading"></i>
+                <i class="bx bx-store bx-lg text-heading"></i>
               </span>
             </span>
           </div>
@@ -50,7 +50,7 @@
             </div>
             <span class="avatar p-2 me-lg-6">
               <span class="avatar-initial rounded w-px-44 h-px-44">
-                <i class="bx bx-laptop bx-lg text-heading"></i>
+                <i class="bx bxs-package bx-lg text-heading"></i>
               </span>
             </span>
           </div>
@@ -64,7 +64,7 @@
             </div>
             <span class="avatar p-2 me-lg-6">
               <span class="avatar-initial rounded w-px-44 h-px-44">
-                <i class="bx bx-laptop bx-lg text-heading"></i>
+                <i class="bx bxs-check-circle text-heading"></i>
               </span>
             </span>
           </div>
@@ -75,96 +75,54 @@
   </div>
 </div>
 
-<div class="container-xxl flex-grow-1 px-0" style="padding: 0 !important;">
+<div class="container-xxl flex-grow-1 px-0" >
   <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y" style="padding: 0 !important;">
+    <div class="container-xxl flex-grow-1 container-p-y" >
       <div class="row w-100 mx-0 px-0">
-        <div class="col-xl-8 col-lg-7 order-0 order-md-0" style="padding: 0 !important;">
+        <div class="col-xl-8 col-lg-7 order-0 order-md-0" >
           <div class="card mb-6">
             <div class="card-body">
-              <table class="table datatable-project dataTable no-footer dtr-column collapsed" id="DataTables_Table_0">
-                <thead>
-                  <tr>
-                    <th>Gaiola</th>
-                    <th>AT</th>
-                    <th>Cidade</th>
-                    <th>Nome/ID</th>
-                    <th>Status</th>
-                    <td>Chamar</th>
-                  </tr>
-                </thead>
-                <tbody id="rota-table">
-                {% for item in fila %}
-                <tr>
-                    <td>
-                    <div class="d-flex justify-content-start align-items-center rota-name">
-                        <div class="avatar-wrapper">
-                        <div class="avatar me-4">
-                            <span class="avatar-initial rounded-circle bg-label-secondary">
-                            <i class="bx bxs-truck bx-lg"></i>
-                            </span>
-                        </div>
-                        </div>
-                        <div class="d-flex flex-column">
-                        <a class="text-heading fw-medium" href="#">
-                            {% if item.rota %} {{ item.rota.gaiola }} {% else %} - {% endif %}
-                        </a>
-                        </div>
-                    </div>
-                    </td>
-                    <td><span class="text-truncate d-flex align-items-center text-heading">
-                    {% if item.rota %} {{ item.rota.AT }} {% else %} - {% endif %}
-                    </span></td>
-                    <td><span class="text-heading">
-                    {% if item.rota %} {{ item.rota.cidade }} {% else %} - {% endif %}
-                    </span></td>
-                    <td><span class="text-heading">
-                    {{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }})
-                    </span></td>
-                    <td><span class="badge bg-label-success">{{ item.senha.get_status_display }}</span></td>
-                    <td>
-                    {% if not bancada_plano.senha %}
-                      {% if item.senha.status == 2 %}
-                        <a href="{% url 'chamar_usuario' item.senha.pk %}" class="btn btn-primary">Bancada</a>
-                      {% else %}
-                        <a href="{% url 'patio_interno' item.senha.pk %}" class="btn btn-primary">Interno</a>
-                      {% endif %}
-                    {% endif %}
-                    </td>
-          <td class="dtr-hidden">
-            <div class="d-flex align-items-center">
-              <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                <i class="bx bx-dots-vertical-rounded bx-md"></i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-end m-0">
-                    <a href="{% url 'ausente' item.senha.id %}" class="dropdown-item">
-                    Ausente
-                    </a>
-                    <a href="{% url 'imprevisto' item.senha.id %}" class="dropdown-item">
-                    Imprevisto
-                    </a>
-                    <a href="{% url 'expulsar' item.senha.id %}" class="dropdown-item">
-                    Expulsar
-                    </a>
-              </div>
-            </div>
-          </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="alert alert-warning">Nenhuma senha na fila.</td>
-                </tr>
-                {% endfor %}
-                </tbody>
+              <div class="table-responsive">
+  <table class="table datatable-project dataTable no-footer dtr-column collapsed" id="DataTables_Table_0">
+    <thead>
+      <tr>
+        <th>Gaiola</th>
+        <th>Nome/ID</th>
+        <th>Status</th>
+        <th>Chamar</th>
+      </tr>
+    </thead>
+    <tbody id="rota-table">
+      {% for item in fila %}
+      <tr>
+        <td> {{ item.rota.gaiola|default:"-" }} </td>
+        <td> {{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }}) </td>
+        <td><span class="badge bg-label-success">{{ item.senha.get_status_display }}</span></td>
+        <td>
+          {% if not bancada_plano.senha %}
+            {% if item.senha.status == 2 %}
+              <a href="{% url 'chamar_usuario' item.senha.pk %}" class="btn btn-primary">Bancada</a>
+            {% else %}
+              <a href="{% url 'patio_interno' item.senha.pk %}" class="btn btn-primary">Interno</a>
+            {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="alert alert-warning text-center">Nenhuma senha na fila.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-
-              </table>
             </div>
           </div>
         </div>
 
         {% if bancada_plano.senha %}
-        <div class="col-xl-4 col-lg-5 order-1 order-md-1" style="padding-right: 0 !important;">
+        <div class="col-xl-4 col-lg-5 order-1 order-md-1" >
           <div class="card mb-6">
             <div class="card-body pt-12">
               <div class="user-avatar-section text-center">

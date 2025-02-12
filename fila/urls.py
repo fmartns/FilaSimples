@@ -2,7 +2,7 @@ from django.urls import path
 from .views import plano_views, bancada_views, fila_views, operador_bancada_views
 
 urlpatterns = [
-    path('fila/', fila_views.FilaView, name='fila_view'),
+    path('fila/', fila_views.FilaView.as_view(template_name='fila_view.html'), name='fila_view'),
     path('plano/', plano_views.PlanosView.as_view(template_name="planos_view.html"), name='planos_view'),
     path('search-planos/', plano_views.search_planos, name='search_planos'),
     path('plano/adicionar/', plano_views.PlanosAdd.as_view(template_name="plano_add.html"), name='plano_add'),

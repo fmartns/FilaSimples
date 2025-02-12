@@ -159,7 +159,6 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Verifique se este caminho contém seus arquivos estáticos
 ]
 
-
 # Configurações do AWS S3
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')

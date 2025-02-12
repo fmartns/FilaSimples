@@ -90,7 +90,7 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
 
 
 # Obtém a fila de senhas associadas ao plano ativo
-        fila = Senha.objects.filter(plano=plano_ativo, status__in=[1, 2, 4, 6, 8]).select_related('user')
+        fila = Senha.objects.filter(plano=plano_ativo, status__in=[2]).select_related('user')
 
         # Ordenação personalizada com prioridade:
         fila = fila.annotate(
@@ -250,6 +250,10 @@ class ChamarUsuarioView(LoginRequiredMixin, TemplateView):
                 senha = Senha.objects.filter(status=1).order_by('id').first()
 
         if not senha:
+            return redirect('operador_painel')
+        
+        # verifica se algum operador já chamou o usuário
+        if not senha.status == 2:
             return redirect('operador_painel')
 
         senha.horario_chamado = timezone.now()

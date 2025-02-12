@@ -155,10 +155,10 @@ class BancadaPlano(models.Model):
 
 class Senha(models.Model):
     STATUS_CHOICES = [
-        (1, "Pátio Externo"),
-        (2, "Pátio Interno"),
+        (1, "Externo"),
+        (2, "Interno"),
         (3, "Mesa (Chamado)"),
-        (4, "Não Compareceu"),
+        (4, "Atrasado"),
         (5, "Mesa (Carregando)"),
         (6, "Ausente"),
         (7, "Carga Finalizada"),
@@ -178,7 +178,7 @@ class Senha(models.Model):
         unique_together = ('user', 'plano')
 
     def __str__(self):
-        return f"{self.user.username} - {self.get_status_display()}"
+        return f"{self.user.shopee_id} - {self.get_status_display()}"
     
 class SenhaHistorico(models.Model):
     senha = models.ForeignKey(Senha, on_delete=models.CASCADE)

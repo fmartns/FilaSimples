@@ -23,10 +23,41 @@
     <p>Não há planos cadastrados.</p>
 {% endif %}
 
-<a href="{% url 'fila_entrar' %}">
-    <button class="btn btn-primary">
-        <i class="bx bx-plus bx-sm me-1"></i> Entrar na fila
-    </button>
-</a>
+{% if senha %}
+    Você está na fila.
+    {% if posicao %}
+        Sua posição na fila é {{ posicao }}. {{ bancadas_operando }} bancadas estão operando.
+    {% endif %}
+{% else %}
+    {% if plano_ativo %}
+    <a href="{% url 'fila_entrar' %}">
+        <button class="btn btn-primary" onclick="entrarNaFila()">
+            <i class="bx bx-plus bx-sm me-1"></i> Entrar na fila
+        </button>
+    </a>
+    {% endif %}
+{% endif %}
+
+
+<script>
+function entrarNaFila() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+
+                // Redirecionar para a URL da view Django com as coordenadas
+                window.location.href = `{% url 'fila_entrar' %}?latitude=${lat}&longitude=${lon}`;
+            },
+            function(error) {
+                alert("Erro ao obter localização. Verifique as permissões de GPS e tente novamente.");
+            }
+        );
+    } else {
+        alert("Geolocalização não suportada pelo seu navegador.");
+    }
+}
+</script>
 
 {% endblock %}

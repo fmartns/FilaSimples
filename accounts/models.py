@@ -67,7 +67,7 @@ class User(AbstractUser):
     foto = models.ImageField(upload_to=foto_caminho, null=True, blank=True, default='static/profile-pictures/default.jpg')
     shopee_id = models.IntegerField(unique=True)
     telefone = models.CharField(max_length=20)
-    cargo = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True, default=None, related_name="cargo_id")
+    cargo = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True, default=1, related_name="cargo_id")
 
     tipo_veiculo = models.ForeignKey(TipoVeiculo, on_delete=models.CASCADE, null=True, blank=True)
     placa = models.CharField(max_length=10, null=True, blank=True)
@@ -76,6 +76,14 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['first_name', 'last_name', 'telefone', 'email']
 
     objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        if self.cargo:
+            # Remover todos os grupos existentes e adicionar apenas o novo cargo
+            self.groups.clear()
+            self.groups.add(self.cargo)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.shopee_id})"
