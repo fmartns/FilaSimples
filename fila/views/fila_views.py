@@ -63,8 +63,8 @@ class FilaView(LoginRequiredMixin, TemplateView):
                 if plano_ultimo is None or fim_datetime > timezone.make_aware(datetime.combine(plano_ultimo.data_fim, plano_ultimo.horario_fim), timezone.get_current_timezone()):
                     plano_ultimo = plano
 
-
-        print(f"🔑 Senha do usuário {self.request.user} {self.request.user.pk} no plano {plano_ativo.pk}")
+        if plano_ativo:
+            print(f"🔑 Senha do usuário {self.request.user} {self.request.user.shopee_id} no plano {plano_ativo.id}")
 
         # Filtrar senha por plano ativo e usuario requisitante
         senha = Senha.objects.filter(user=self.request.user, plano=plano_ativo).first()
@@ -91,6 +91,7 @@ class FilaView(LoginRequiredMixin, TemplateView):
                 break
             posicao += 1
 
+        bancadas_operando = BancadaPlano.objects.filter(plano=plano_ativo).count()
         # usando horario_chamado, horario_comparecimento e horario_finalizado para verificar o tempo medio por senha
         tempo_medio = 0
         for senha in senhas_finalizadas:
@@ -98,8 +99,8 @@ class FilaView(LoginRequiredMixin, TemplateView):
         
         if senhas_finalizadas.count() > 0:
             tempo_medio = tempo_medio / senhas_finalizadas.count()
-            tempo_medio = (tempo_medio/60) * posicao-1
-            context['tempo_medio'] = tempo_medio
+            tempo_medio = ((tempo_medio/60) * posicao-1)/bancadas_operando
+            context['estimativa_tempo'] = tempo_medio
 
         
 
@@ -108,21 +109,20 @@ class FilaView(LoginRequiredMixin, TemplateView):
 
         senhas_num = Senha.objects.filter(plano=plano_ativo).count()
 
-        bancadas_operando = BancadaPlano.objects.filter(plano=plano_ativo).count()
 
         context['bancadas_operando'] = bancadas_operando
 
         context['senhas_num'] = senhas_num
 
         context['posicao'] = posicao
-        
 
-        if senha:
-            print(f"🔑 Senha do usuário {self.request.user} {self.request.user.pk} no plano {plano_ativo.pk}"
-                  f" com status {senha.status} na posição {senha.status}")
-            context['senha'] = senha
-        else:
-            print(f"🔑 Usuário {self.request.user} não tem senha no plano {plano_ativo.pk}")
+        if plano_ativo:
+            if senha:
+                print(f"🔑 Senha do usuário {self.request.user} {self.request.user.pk} no plano {plano_ativo.pk}"
+                    f" com status {senha.status} na posição {senha.status}")
+                context['senha'] = senha
+            else:
+                print(f"🔑 Usuário {self.request.user} não tem senha no plano {plano_ativo.pk}")
 
         
         context['plano_ativo'] = plano_ativo

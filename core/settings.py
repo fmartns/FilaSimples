@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     'fila',
     'dashboards',
     'hub',
+
+    # Axes
+    'axes',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -110,6 +114,13 @@ DATABASES = {
     }
 }
 
+AUTHENTICATION_BACKENDS = [
+    # AxesStandaloneBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
+    'axes.backends.AxesStandaloneBackend',
+
+    # Django ModelBackend is the default authentication backend.
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -185,3 +196,10 @@ MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 
 # Diretório raiz de arquivos estáticos (necessário para collectstatic)
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+AXES_FAILURE_LIMIT = 5  # Quantidade máxima de falhas antes do bloqueio
+AXES_COOLOFF_TIME = 1  # Tempo em horas antes de liberar automaticamente o usuário
+AXES_LOCKOUT_PARAMETERS = ['shopee_id', 'ip_address']
+AXES_ENABLE_ACCESS_LOG = True  # Registra todas as tentativas de login
+AXES_HANDLER = 'axes.handlers.database.AxesDatabaseHandler'
+AXES_RESET_ON_SUCCESS = True  # Resetar contadores após um login bem-sucedido
