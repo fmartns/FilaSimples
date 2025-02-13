@@ -1,0 +1,174 @@
+{% extends layout_path %}
+
+{% load static %}
+
+{% block title %}Painel do Operador{% endblock %}
+
+{% block content %}
+<div class="row g-6">
+  <!-- Card Border Shadow -->
+  <div class="col-lg-3 col-sm-6">
+    <div class="card card-border-shadow-primary h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-4">
+            <span class="avatar-initial rounded">
+              <i class="bx bx-loader bx-rotate-180 text-heading"></i>
+            </span>
+          </div>
+          <h4 class="mb-0">{{ status_count.patio_externo }}</h4>
+        </div>
+        <p class="mb-2">Pátio Externo</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-sm-6">
+    <div class="card card-border-shadow-warning h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-4">
+            <span class="avatar-initial rounded">
+              <i class="bx bx-store bx-lg text-heading"></i>
+            </span>
+          </div>
+          <h4 class="mb-0">{{ status_count.patio_interno }}</h4>
+        </div>
+        <p class="mb-2">Pátio Interno</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-sm-6">
+    <div class="card card-border-shadow-danger h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-4">
+            <span class="avatar-initial rounded">
+              <i class="bx bxs-package bx-lg text-heading">
+              </i>
+            </span>
+          </div>
+          <h4 class="mb-0">{{ status_count.mesa_chamado_carregando }}</h4>
+        </div>
+        <p class="mb-2">Carregando</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-sm-6">
+    <div class="card card-border-shadow-info h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-4">
+            <span class="avatar-initial rounded">
+              <i class="bx bxs-check-circle text-heading"></i>
+            </span>
+          </div>
+          <h4 class="mb-0">{{ status_count.carga_finalizada }}</h4>
+        </div>
+        <p class="mb-2">Finalizados</p>
+      </div>
+    </div>
+  </div>
+
+<div class="container-xxl flex-grow-1 px-0" >
+  <div class="content-wrapper">
+    <div class="container-xxl flex-grow-1 container-p-y" >
+      <div class="row w-100 mx-0 px-0">
+        <div class="col-xl-8 col-lg-7 order-0 order-md-0" >
+          <div class="card mb-6">
+            <div class="card-body">
+              <div class="table-responsive">
+  <table class="table datatable-project dataTable no-footer dtr-column collapsed" id="DataTables_Table_0">
+    <thead>
+      <tr>
+        <th>Gaiola</th>
+        <th>Nome/ID</th>
+        <th>Status</th>
+        <th>Chamar</th>
+      </tr>
+    </thead>
+    <tbody id="rota-table">
+      {% for item in fila %}
+      <tr>
+        <td> {{ item.rota.gaiola|default:"-" }} </td>
+        <td> {{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }}) </td>
+        <td><span class="badge bg-label-success">{{ item.senha.get_status_display }}</span></td>
+        <td>
+          {% if not bancada_plano.senha %}
+            {% if item.senha.status == 2 %}
+                <a href="{% url 'chamar_usuario' item.senha.pk %}" class="btn btn-secondary disabled" aria-disabled="true">Bancada</a>
+
+            {% else %}
+              <a href="{% url 'patio_interno' item.senha.pk %}" class="btn btn-primary">Interno</a>
+            {% endif %}
+          {% endif %}
+        </td>
+                  <td class="dtr-hidden">
+            <div class="d-flex align-items-center">
+              <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                <i class="bx bx-dots-vertical-rounded bx-md"></i>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end m-0">
+                    <a href="{% url 'ausente' item.senha.id %}" class="dropdown-item">
+                    Ausente
+                    </a>
+                    <a href="{% url 'imprevisto' item.senha.id %}" class="dropdown-item">
+                    Imprevisto
+                    </a>
+                    <a href="{% url 'expulsar' item.senha.id %}" class="dropdown-item">
+                    Expulsar
+                    </a>
+              </div>
+            </div>
+          </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="alert alert-warning text-center">Nenhuma senha na fila.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+            </div>
+          </div>
+        </div>
+
+        {% if bancada_plano.senha %}
+        <div class="col-xl-4 col-lg-5 order-1 order-md-1" >
+          <div class="card mb-6">
+            <div class="card-body pt-12">
+              <div class="user-avatar-section text-center">
+                <img class="img-fluid rounded mb-4" src="{{ bancada_plano.senha.user.foto.url }}" height="120" width="120" alt="User avatar">
+                    <a href="{% url 'user_view' bancada_plano.senha.user.id %}" target="_blank" class"text-heading text-truncate">
+                      <h5>{{ bancada_plano.senha.user.first_name }} {{ bancada_plano.senha.user.last_name }}</h5>
+                    </a>
+                <span class="badge bg-label-secondary"> {{ bancada_plano.senha.user.cargo.name }} </span>
+              </div>
+              <h5 class="pb-4 border-bottom mb-4">Detalhes</h5>
+              <ul class="list-unstyled mb-6">
+                <li><span class="h6">Shopee ID:</span> <span>{{ bancada_plano.senha.user.shopee_id }}</span></li>
+                <li><span class="h6">Email:</span> <span>{{ bancada_plano.senha.user.email }}</span></li>
+              </ul>
+              <div class="d-flex justify-content-center">
+                {% if bancada_plano.senha.status == 3 %}
+                <a href="{% url 'iniciar_carregamento' bancada_plano.senha.id %}" class="btn btn-primary me-4">Iniciar carregamento</a>
+                <a href="{% url 'nao_compareceu' bancada_plano.senha.id %}" class="btn btn-primary me-4">Não compareceu</a>
+                {% elif bancada_plano.senha.status == 5 %}
+                <a href="{% url 'finalizar_carregamento' bancada_plano.senha.id %}" class="btn btn-primary me-4">Finalizar carregamento</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}

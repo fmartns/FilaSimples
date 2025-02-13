@@ -52,7 +52,7 @@
           <li>
             <div class="dropdown-divider my-1"></div>
           </li>
-          <li>
+          {% comment %} <li>
             <a class="dropdown-item" href="javascript:void(0);">
              <i class="bx bx-user bx-md me-3"></i><span>Meu perfil</span>
             </a>
@@ -64,7 +64,7 @@
           </li>
           <li>
             <div class="dropdown-divider my-1"></div>
-          </li>
+          </li> {% endcomment %}
           <li>
             <a class="dropdown-item" href="{% url 'logout' %}">
               <i class="bx bx-power-off bx-md me-3"></i><span>Sair</span>

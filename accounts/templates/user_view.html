@@ -46,7 +46,7 @@
                         </div>
                         <div class="d-flex justify-content-around flex-wrap my-6 gap-0 gap-md-3 gap-lg-4">
                             <div class="d-flex align-items-center me-5 gap-4">
-                                <div class="avatar">
+                                {% comment %} <div class="avatar">
                                     <div class="avatar-initial bg-label-primary rounded w-px-40 h-px-40">
                                         <i class="bx bx-check bx-lg"></i>
                                     </div>
@@ -54,7 +54,7 @@
                                 <div>
                                     <h5 class="mb-0">1.23k</h5>
                                     <span>Rotas Carregadas</span>
-                                </div>
+                                </div> {% endcomment %}
                                 {% if messages %}
                                     {% for message in messages %}
                                         {% if message.extra_tags == "user" %}

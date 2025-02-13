@@ -27,17 +27,10 @@
         <div class="text-truncate" data-i18n="Dashboards">Página Inicial</div>
       </a>
     </li>
-    
-    <li class="menu-item">
-      <a class="menu-link" target="_blank">
-        <i class="menu-icon tf-icons bx bx-support"></i>
-        <div class="text-truncate" data-i18n="Support">Suporte</div>
-      </a>
-    </li>
-    {% if perms.fila.view_senha  %}
+    {% if perms.fila.view_senha and request.user.cargo.id != 3  %}
     <li class="menu-item">
       <a href="{% url 'fila_view' %}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-list-ul"></i>
+        <i class="menu-icon tf-icons bx bxs-car-garage"></i>
         <div class="text-truncate" data-i18n="Fila">Fila</div>
       </a>
     </li>
@@ -51,21 +44,31 @@
     </li>
     {% endif %}
 
-    {% if request.user.is_superuser  %}
+    {% if perms.accounts.view_user %}
+    <li class="menu-item">
+      <a href="{% url 'users_view' %}" class="menu-link">
+        <i class='menu-icon tf-icons bx bxs-user-detail'></i>
+        <div data-i18n="Roles">Usuários</div>
+      </a>
+    </li>
+    {% endif %}
+
+    {% if request.user.cargo.id == 3 or user.is_superuser  %}
     <li class="menu-item">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon icon-base bx bx-check-shield"></i>
-          <div data-i18n="Roles & Permissions">Administração</div>
+          <i class="menu-icon icon-base bx bxs-bar-chart-square"></i>
+          <div data-i18n="Roles & Permissions">Supervisão</div>
         </a>
         <ul class="menu-sub">
-          <li class="menu-item">
-            <a href="{% url 'users_view' %}" class="menu-link">
-              <div data-i18n="Roles">Usuários</div>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a href="{% url 'operador_painel' %}" class="menu-link">
-              <div data-i18n="Permissions">Painel do Operador</div>
+
+        <li class="menu-item">
+          <a href="{% url 'supervisor_painel' %}" class="menu-link">
+            <div data-i18n="Permissions">Administração Fila</div>
+          </a>
+        </li>
+        <li class="menu-item">
+            <a href="{% url 'planos_view' %}" class="menu-link">
+              <div data-i18n="Roles">Plano de Carregamento</div>
             </a>
           </li>
           <li class="menu-item">
@@ -73,20 +76,30 @@
               <div data-i18n="Roles">Cadastro de Bancadas</div>
             </a>
           </li>
+        </ul>
+    </li>
+    {% endif %}
+    {% if user.is_superuser %}
+    <li class="menu-item">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="menu-icon icon-base bx bx-check-shield"></i>
+          <div data-i18n="Roles & Permissions">Administração</div>
+        </a>
+        <ul class="menu-sub">
           <li class="menu-item">
-            <a href="{% url 'planos_view' %}" class="menu-link">
-              <div data-i18n="Roles">Plano de Carregamento</div>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a href="{% url 'tipo_veiculos_view' %}" class="menu-link">
-              <div data-i18n="Roles">Veículos</div>
+            <a href="{% url 'hub_edit' %}" class="menu-link">
+              <div data-i18n="Roles">Hub</div>
             </a>
           </li>
         </ul>
     </li>
     {% endif %}
-
+    <li class="menu-item">
+      <a href="https://wa.me/47996957685" class="menu-link" target="_blank">
+        <i class="menu-icon tf-icons bx bx-support"></i>
+        <div class="text-truncate" data-i18n="Support">Suporte</div>
+      </a>
+    </li>
   </ul>
 
 

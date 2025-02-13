@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECRET_KEY = 'django-insecure-l24x3t*n28owow%cpqa18j#y+u(z6p@f-u-8-2)o@!h#vtj!&1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -199,7 +199,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 AXES_FAILURE_LIMIT = 5  # Quantidade máxima de falhas antes do bloqueio
 AXES_COOLOFF_TIME = 1  # Tempo em horas antes de liberar automaticamente o usuário
-AXES_LOCKOUT_PARAMETERS = ['shopee_id', 'ip_address']
 AXES_ENABLE_ACCESS_LOG = True  # Registra todas as tentativas de login
 AXES_HANDLER = 'axes.handlers.database.AxesDatabaseHandler'
 AXES_RESET_ON_SUCCESS = True  # Resetar contadores após um login bem-sucedido

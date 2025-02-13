@@ -17,7 +17,8 @@ urlpatterns = [
     path('bancada/deletar/<int:bancada_id>/', bancada_views.BancadaDelete, name='bancada_delete'),
     path('fila/entrar/', fila_views.EntrarFila, name='fila_entrar'),
     path('operador/painel/', operador_bancada_views.OperadorPainelView.as_view(), name='operador_painel'),
-    path('operador/bancada/', operador_bancada_views.EntrarBancadaView.as_view(), name='entrar_bancada'),
+    path('bancada/assumir/', operador_bancada_views.EntrarBancadaView.as_view(), name='entrar_bancada'),
+    path('bancada/sair/', operador_bancada_views.SairBancadaView.as_view(), name='sair_bancada'),
     path('operador/chamar/<int:senha_id>/', operador_bancada_views.ChamarUsuarioView.as_view(), name='chamar_usuario'),
     path('operador/iniciar/<int:senha_id>/', operador_bancada_views.IniciarCarregamentoView.as_view(), name='iniciar_carregamento'),
     path('operador/finalizar/<int:senha_id>/', operador_bancada_views.FinalizarCargaView.as_view(), name='finalizar_carregamento'),
@@ -26,4 +27,6 @@ urlpatterns = [
     path('operador/imprevisto/<int:senha_id>/', operador_bancada_views.ImprevistoView.as_view(), name='imprevisto'),
     path('operador/expulsar/<int:senha_id>/', operador_bancada_views.ExpulsoView.as_view(), name='expulsar'),
     path('operador/patio-interno/<int:senha_id>/', operador_bancada_views.SubirPatioInternoView.as_view(), name='patio_interno'),
+    path('supervisor/painel/', operador_bancada_views.SupervisorPainelView.as_view(), name='supervisor_painel'),
+
 ]

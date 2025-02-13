@@ -5,27 +5,31 @@
 
 {% block content %}
 
-{% if bancada_ocupada %}
-    <p class="alert alert-warning">
-        Você já está na bancada: <strong>{{ bancada_ocupada.name }}</strong>.
-    </p>
-{% else %}
-    <h3>Bancadas Disponíveis:</h3>
-    <ul>
-        {% for bancada in bancadas_disponiveis %}
-            <li>
-                <form method="post" action="{% url 'entrar_bancada' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="bancada_id" value="{{ bancada.id }}">
-                    <button type="submit" class="btn btn-primary">
-                        Entrar na Bancada {{ bancada.name }}
-                    </button>
-                </form>
-            </li>
-        {% empty %}
-            <p class="alert alert-info">Nenhuma bancada disponível no momento.</p>
-        {% endfor %}
-    </ul>
-{% endif %}
+<div class="container mt-4">
+    {% if bancada_ocupada %}
+        <div class="alert alert-warning text-center">
+            Você já está na bancada: <strong>{{ bancada_ocupada.name }}</strong>.
+        </div>
+    {% else %}
+        <h3 class="mb-3">Bancadas Disponíveis:</h3>
+        {% if bancadas_disponiveis %}
+            <div class="row">
+                {% for bancada in bancadas_disponiveis %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <form method="post" action="{% url 'entrar_bancada' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="bancada_id" value="{{ bancada.id }}">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Entrar na {{ bancada.name }}
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">Nenhuma bancada disponível no momento.</div>
+        {% endif %}
+    {% endif %}
+</div>
 
 {% endblock %}

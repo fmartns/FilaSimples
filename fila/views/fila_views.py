@@ -36,9 +36,6 @@ class FilaView(LoginRequiredMixin, TemplateView):
         plano_proximo = None
         plano_ultimo = None
 
-        senha = Senha.objects.filter(user=self.request.user, plano=plano_ativo).first()
-
-
         for plano in planos:
             # Criar os datetime combinando data e hora (ainda sem timezone)
             inicio_datetime = datetime.combine(plano.data_inicio, plano.horario_inicio)
@@ -63,11 +60,15 @@ class FilaView(LoginRequiredMixin, TemplateView):
                 if plano_ultimo is None or fim_datetime > timezone.make_aware(datetime.combine(plano_ultimo.data_fim, plano_ultimo.horario_fim), timezone.get_current_timezone()):
                     plano_ultimo = plano
 
-        if plano_ativo:
-            print(f"🔑 Senha do usuário {self.request.user} {self.request.user.shopee_id} no plano {plano_ativo.id}")
+        print(f"📅 Plano ativo: {plano_ativo}")
 
-        # Filtrar senha por plano ativo e usuario requisitante
-        senha = Senha.objects.filter(user=self.request.user, plano=plano_ativo).first()
+        user = self.request.user  # Obtém o usuário requisitante
+
+        if plano_ativo:
+            senha_da_fila = Senha.objects.filter(user=user, plano=plano_ativo.id).first()
+            if senha_da_fila:
+                print(f"🔑 Senha do usuário {senha_da_fila.id}")
+                context['senha'] = senha_da_fila
 
         # Definir a sequência de prioridade dos status
         status_order = Case(
@@ -91,7 +92,7 @@ class FilaView(LoginRequiredMixin, TemplateView):
                 break
             posicao += 1
 
-        bancadas_operando = BancadaPlano.objects.filter(plano=plano_ativo).count()
+        bancadas_operando = BancadaPlano.objects.filter(plano=plano_ativo, status=1).count()
         # usando horario_chamado, horario_comparecimento e horario_finalizado para verificar o tempo medio por senha
         tempo_medio = 0
         for senha in senhas_finalizadas:
@@ -99,32 +100,31 @@ class FilaView(LoginRequiredMixin, TemplateView):
         
         if senhas_finalizadas.count() > 0:
             tempo_medio = tempo_medio / senhas_finalizadas.count()
-            tempo_medio = ((tempo_medio/60) * posicao-1)/bancadas_operando
+            
+            if bancadas_operando == 0:
+                tempo_medio = ((tempo_medio/60) * posicao-1)/1
+            else:
+                tempo_medio = ((tempo_medio/60) * posicao-1)/bancadas_operando
+            #arrendondar e deixar sem casas decimais
+            tempo_medio = round(tempo_medio)
+            if tempo_medio < 1:
+                tempo_medio = 120
             context['estimativa_tempo'] = tempo_medio
-
-        
 
         # verificar quantas senhas tem antes da senha do usuário
 
 
         senhas_num = Senha.objects.filter(plano=plano_ativo).count()
 
+        bancada_senha = BancadaPlano.objects.filter(plano=plano_ativo, senha__user=user).first()
+
+        if bancada_senha:
+            context['bancada_senha'] = bancada_senha.bancada
+
 
         context['bancadas_operando'] = bancadas_operando
-
         context['senhas_num'] = senhas_num
-
         context['posicao'] = posicao
-
-        if plano_ativo:
-            if senha:
-                print(f"🔑 Senha do usuário {self.request.user} {self.request.user.pk} no plano {plano_ativo.pk}"
-                    f" com status {senha.status} na posição {senha.status}")
-                context['senha'] = senha
-            else:
-                print(f"🔑 Usuário {self.request.user} não tem senha no plano {plano_ativo.pk}")
-
-        
         context['plano_ativo'] = plano_ativo
         context['plano_proximo_ou_ultimo'] = plano_proximo if plano_proximo else plano_ultimo
 

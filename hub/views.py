@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from hub.models import Hub
 from hub.forms import HubForm
+from django.shortcuts import render
 
 class HubEditView(LoginRequiredMixin, UpdateView):
     
@@ -19,3 +20,9 @@ class HubEditView(LoginRequiredMixin, UpdateView):
         """ Usa o template base da aplicação. """
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         return context
+
+def handler404(request, exception):
+    return render(request, 'error.html', status=404)
+
+def handler500(request):
+    return render(request, 'error.html', status=500)

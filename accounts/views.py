@@ -17,7 +17,6 @@ from django.shortcuts import get_object_or_404
 from datetime import datetime
 from django.utils.timezone import make_aware, is_aware
 from django.http import JsonResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
@@ -25,6 +24,7 @@ from django.http import JsonResponse
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+
 class LoginView(LoginView):
     template_name = "login.html"
     redirect_authenticated_user = True
@@ -32,6 +32,7 @@ class LoginView(LoginView):
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         return context
+
 class SignupView(FormView):
     template_name = "signup.html"
     form_class = CustomUserCreationForm
