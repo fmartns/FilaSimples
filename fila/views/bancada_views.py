@@ -11,6 +11,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 class BancadasView(LoginRequiredMixin, TemplateView):
 
@@ -53,11 +54,12 @@ def search_bancadas(request):
 
     return render(request, "partials/bancadas_table.html", {"bancadas": page_obj, "paginator": paginator})
 
-@login_required
-@permission_required('fila.add_bancada', raise_exception=True)
-class BancadasAdd(LoginRequiredMixin, FormView):
+class BancadasAdd(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = 'fila.add_bancada'
     form_class = BancadaForm
     success_url = reverse_lazy("bancadas_view")
+    template_name = "bancada_add.html"  # ✅ Adicionei o template
+
 
     def form_valid(self, form):
         form.save()
@@ -67,10 +69,11 @@ class BancadasAdd(LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         context = TemplateLayout.init(self, context)
         return context
+
     
-@login_required
-@permission_required('fila.change_bancada', raise_exception=True)
-class BancadaEdit(LoginRequiredMixin, TemplateView):
+class BancadaEdit(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+
+    permission_required = 'fila.change_bancada'
     template_name = "bancada_edit.html"
 
     def get_context_data(self, **kwargs):
@@ -83,9 +86,9 @@ class BancadaEdit(LoginRequiredMixin, TemplateView):
         context['bancada'] = bancada
 
         if self.request.method == "POST":
-            context['form'] = BancadaForm(self.request.POST, self.request.FILES, instance=bancada)  # ✅ Correção aqui
+            context['form'] = BancadaForm(self.request.POST, self.request.FILES, instance=bancada)
         else:
-            context['form'] = BancadaForm(instance=bancada)  # ✅ Correção aqui
+            context['form'] = BancadaForm(instance=bancada)
 
         return context
 
@@ -96,9 +99,10 @@ class BancadaEdit(LoginRequiredMixin, TemplateView):
 
         if form.is_valid():
             form.save()
-            return redirect("bancadas_view")  # ✅ Alterado para 'bancadas_view'
+            return redirect("bancadas_view")
 
         return self.render_to_response(self.get_context_data(**kwargs))
+
 
 @login_required
 @permission_required('fila.ativar_bancada', raise_exception=True)
