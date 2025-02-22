@@ -33,7 +33,7 @@ class PlanoCarregamento(models.Model):
 
         if self.planilha:
             # 🔥 O S3 NÃO TEM `path`, então usamos `url`
-            planilha_url = self.planilha.url  
+            planilha_url = 'http://127.0.0.1:8000/' + self.planilha.url  
             response = requests.get(planilha_url)
 
             if response.status_code == 200:

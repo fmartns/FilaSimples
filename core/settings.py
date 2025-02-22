@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECRET_KEY = 'django-insecure-l24x3t*n28owow%cpqa18j#y+u(z6p@f-u-8-2)o@!h#vtj!&1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -170,32 +170,34 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Verifique se este caminho contém seus arquivos estáticos
 ]
 
-# Configurações do AWS S3
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = 'us-east-1'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-AWS_S3_FILE_OVERWRITE = False
+# # Configurações do AWS S3
+# AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+# AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+# AWS_S3_REGION_NAME = 'us-east-1'
+# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+# AWS_S3_FILE_OVERWRITE = False
 
-# Configuração do Django para armazenar arquivos no S3
-STORAGES = {
-    # Armazenamento de arquivos de mídia (imagens, uploads)
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    },
-    # Armazenamento de arquivos estáticos (CSS, JS)
-    "staticfiles": {
-        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
-    },
-}
+# # Configuração do Django para armazenar arquivos no S3
+# STORAGES = {
+#     # Armazenamento de arquivos de mídia (imagens, uploads)
+#     "default": {
+#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+#     },
+#     # Armazenamento de arquivos estáticos (CSS, JS)
+#     "staticfiles": {
+#         "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+#     },
+# }
 
-# URL para servir arquivos do S3
-STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+# # URL para servir arquivos do S3
+# STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+# MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 
-# Diretório raiz de arquivos estáticos (necessário para collectstatic)
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# # Diretório raiz de arquivos estáticos (necessário para collectstatic)
+# STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATIC_URL = '/static/'
 
 AXES_FAILURE_LIMIT = 5  # Quantidade máxima de falhas antes do bloqueio
 AXES_COOLOFF_TIME = 1  # Tempo em horas antes de liberar automaticamente o usuário
