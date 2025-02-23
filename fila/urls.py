@@ -28,5 +28,5 @@ urlpatterns = [
     path('operador/expulsar/<int:senha_id>/', operador_bancada_views.ExpulsoView.as_view(), name='expulsar'),
     path('operador/patio-interno/<int:senha_id>/', operador_bancada_views.SubirPatioInternoView.as_view(), name='patio_interno'),
     path('supervisor/painel/', operador_bancada_views.SupervisorPainelView.as_view(), name='supervisor_painel'),
-
+    path('search-supervisor/', operador_bancada_views.search_painel_supervisor, name='search_supervisor'),
 ]

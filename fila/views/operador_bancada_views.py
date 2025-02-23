@@ -9,6 +9,11 @@ from fila.models import Senha, SenhaHistorico, PlanoCarregamento
 from fila.models import Bancada, BancadaPlano, Rota
 from django.db.models import Case, When, Value, IntegerField
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render
+from django.contrib import messages
 
 User = get_user_model()
 class OperadorPainelView(LoginRequiredMixin, TemplateView):
@@ -112,7 +117,17 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
                 "rota": rota if rota else None  # Evita erro caso não haja rota associada
             })
 
+        senhas_geradas = Senha.objects.filter(plano=plano_ativo).count()
+        print(" Senhas geradas: ", senhas_geradas)
+
+        rotas = Rota.objects.filter(plano=plano_ativo).count()
+        print(" Rotas: ", rotas)
+
         context['fila'] = fila_com_rotas
+
+        context['senhas_geradas'] = senhas_geradas
+
+        context['rotas'] = rotas
 
 
         # 🔢 Contagem de senhas por status dentro do plano ativo
@@ -121,7 +136,7 @@ class OperadorPainelView(LoginRequiredMixin, TemplateView):
             "patio_interno": Senha.objects.filter(plano=plano_ativo, status=2).count(),
             "mesa_chamado_carregando": Senha.objects.filter(plano=plano_ativo, status__in=[3, 5]).count(),
             "ausente_imprevisto": Senha.objects.filter(plano=plano_ativo, status__in=[6, 8]).count(),
-            "carga_finalizada": Senha.objects.filter(plano=plano_ativo, status=7).count()
+            "carga_finalizada": Senha.objects.filter(plano=plano_ativo, status=7).count(),
         }
 
         return context
@@ -236,7 +251,12 @@ class SairBancadaView(LoginRequiredMixin, TemplateView):
         bancada_plano = BancadaPlano.objects.filter(operador=request.user, status=1).first()
 
         if not bancada_plano:
-            print(f"⚠️ O operador {request.user} não está em nenhuma bancada.")
+            print(f"⚠️ O operador {request.user} não está em nenhuma bancada.") 
+            return redirect('operador_painel')
+    
+        if bancada_plano.senha is not None:
+            print(f"⚠️ O operador {request.user} não pode sair da bancada {bancada_plano.bancada.name} pois ainda há uma senha associada.")
+            messages.error(request, "O operador não pode sair da bancada com uma senha associada.")
             return redirect('operador_painel')
         
         bancada_plano.status = 2
@@ -469,7 +489,25 @@ class SupervisorPainelView(LoginRequiredMixin, TemplateView):
                 "rota": rota if rota else None  # Evita erro caso não haja rota associada
             })
 
+        senhas_geradas = Senha.objects.filter(plano=plano_ativo).count()
+        print(" Senhas geradas: ", senhas_geradas)
+
+        rotas = Rota.objects.filter(plano=plano_ativo).count()
+        print(" Rotas: ", rotas)
+
+        # calcular a porcentagem de senhas geradas em relação as rotas
+        if rotas > 0:
+            porcentagem = (senhas_geradas * 100) / rotas
+            porcentagem = round(porcentagem, 2)
+            print(" Porcentagem: ", porcentagem)
+            context['porcentagem'] = porcentagem
+
         context['fila'] = fila_com_rotas
+
+        context['senhas_geradas'] = senhas_geradas
+
+        context['rotas'] = rotas
+
 
 
         # 🔢 Contagem de senhas por status dentro do plano ativo
@@ -482,3 +520,104 @@ class SupervisorPainelView(LoginRequiredMixin, TemplateView):
         }
 
         return context
+
+@login_required
+@permission_required('fila.view_plano', raise_exception=True)
+def search_painel_supervisor(request):
+    limit = int(request.GET.get('limit', 10))
+    page_number = request.GET.get('page', 1)
+    filtro = request.GET.get('filtro', 'todos')
+    q = request.GET.get('q', None)
+
+
+    plano_ativo = None
+    agora = timezone.now()
+
+    for plano in PlanoCarregamento.objects.all():
+        inicio_datetime = timezone.make_aware(
+            timezone.datetime.combine(plano.data_inicio, plano.horario_inicio),
+            timezone.get_current_timezone()
+        )
+        fim_datetime = timezone.make_aware(
+            timezone.datetime.combine(plano.data_fim, plano.horario_fim),
+            timezone.get_current_timezone()
+        )
+
+        if inicio_datetime <= agora <= fim_datetime:
+            plano_ativo = plano
+            break
+
+    fila = Senha.objects.filter(plano=plano_ativo, status__in=[1,2,3,4,5,6,8,9]).select_related('user')
+
+    # Ordenação personalizada com prioridade:
+    fila = fila.annotate(
+        prioridade=Case(
+            When(status=2, then=Value(1)),  # Pátio Interno tem maior prioridade (1º lugar)
+            When(status=1, then=Value(2)),  # Pátio Externo tem 2ª prioridade
+            default=Value(3),  # Outros status em seguida
+            output_field=IntegerField()
+        )
+    ).order_by('prioridade', 'id')  # Ordena pela prioridade e depois pelo ID da senha
+
+    # 🔗 Cruzando senha com a rota associada
+    fila_com_rotas = []
+    for senha in fila:
+        rota = Rota.objects.filter(user=senha.user, plano=senha.plano).first()
+        fila_com_rotas.append({
+            "id": senha.id,
+            "first_name": senha.user.first_name,
+            "last_name": senha.user.last_name,
+            "shopee_id": senha.user.shopee_id,
+            "senha": senha,
+            "status": senha.status,
+            "rota": rota if rota else None  # Evita erro caso não haja rota associada
+        })
+
+
+    print(" Fila com rotas: ", fila_com_rotas)
+
+    if q:
+        q_lower = q.lower()
+        fila_com_rotas = [
+            item for item in fila_com_rotas
+            if q_lower in item["first_name"].lower() or
+            q_lower in item["last_name"].lower() or
+            q_lower in str(item["shopee_id"]).lower() or
+            q_lower in str(item["senha"]).lower() or
+            (item["rota"] and q_lower in str(item["rota"]).lower())
+        ]
+
+    print(" Query: ", q)
+    print(" Fila com rotas com query: ", fila_com_rotas)
+
+    # http://127.0.0.1:8000/carregamento/search-supervisor/?q=&limit=10&page=1&filtro=patio_externo
+
+    if filtro == "todos":
+        pass
+    elif filtro == "patio_externo":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 1]
+    elif filtro == "patio_interno":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 2]
+    elif filtro == "mesa_chamado_chamado":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 3]
+    elif filtro == "atraso":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 4]
+    elif filtro == "mesa_chamado_carregando":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 5]
+    elif filtro == "ausente":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 6]
+    elif filtro == "carga_finalizada":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 7]
+    elif filtro == "imprevisto":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 8]
+    elif filtro == "expulso":
+        fila_com_rotas = [item for item in fila_com_rotas if item["status"] == 9]
+
+
+    print(" Filtro: ", filtro)
+    print(" Fila com rotas com query e filtro: ", fila_com_rotas)
+
+    paginator = Paginator(fila_com_rotas, limit)
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "supervisor/supervisor_table.html", {"fila": page_obj, "paginator": paginator})

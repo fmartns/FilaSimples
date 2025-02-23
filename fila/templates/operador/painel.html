@@ -13,6 +13,16 @@
     <a href="{% url 'sair_bancada' %}" class="btn btn-primary">Deixar bancada</a>
 </div>
 
+{% comment %} Mensagens de erro {% endcomment %}
+{% if messages %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {% for message in messages %}
+    {{ message }}
+    {% endfor %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
 <div class="row g-6">
   <!-- Card Border Shadow -->
   <div class="col-lg-3 col-sm-6">
@@ -77,9 +87,9 @@
     </div>
   </div>
 
-<div class="container-xxl flex-grow-1 px-0" >
+<div class="container-xxl flex-grow-1 px-0 pt-3" >
   <div class="content-wrapper">
-    <div class="container-xxl flex-grow-1 container-p-y" style="padding-right: 0 !important; padding-left: 0 !important;" >
+    <div class="flex-grow-1">
       <div class="row w-100 mx-0 px-0">
         <div class="col-xl-8 col-lg-7 order-0 order-md-0" >
           <div class="card mb-6">
