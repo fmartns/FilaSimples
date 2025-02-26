@@ -139,6 +139,7 @@
                   <tr>
                     <th>Gaiola</th>
                     <th>Nome/ID</th>
+                    <th>Horário</th>
                     <th>Status</th>
                     <th>Chamar</th>
                     <th></th>
@@ -149,6 +150,7 @@
                   <tr>
                     <td>{{ item.rota.gaiola|default:"-" }}</td>
                     <td>{{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }})</td>
+                    <td>{{ item.senha.horario_criacao|date:"h:i" }}</td>
                     <td>
                       <span class="badge bg-label-success">
                         {{ item.senha.get_status_display }}

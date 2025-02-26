@@ -8,6 +8,7 @@ from fila.utils import arquivo_planilha_path
 from accounts.models import User
 from django.core.files.base import ContentFile
 import requests
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -169,22 +170,13 @@ class Senha(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plano = models.ForeignKey(PlanoCarregamento, on_delete=models.CASCADE)
     status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    horario_criacao = models.DateTimeField(auto_now_add=True)
     horario_chamado = models.DateTimeField(null=True, blank=True)
     horario_comparecimento = models.DateTimeField(null=True, blank=True)
     horario_finalizado = models.DateTimeField(null=True, blank=True)
-
 
     class Meta:
         unique_together = ('user', 'plano')
 
     def __str__(self):
         return f"{self.user.shopee_id} - {self.get_status_display()}"
-    
-class SenhaHistorico(models.Model):
-    senha = models.ForeignKey(Senha, on_delete=models.CASCADE)
-    horario_chamado = models.DateTimeField(null=True, blank=True)
-    horario_comparecimento = models.DateTimeField(null=True, blank=True)
-    horario_finalizado = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Histórico - {self.senha.user.username}"

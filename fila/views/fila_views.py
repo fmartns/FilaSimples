@@ -13,7 +13,7 @@ from fila.models import PlanoCarregamento, Senha  # Model de entrada na fila
 from django.db import transaction, IntegrityError
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Case, When, IntegerField
-from fila.models import BancadaPlano
+from fila.models import BancadaPlano, Rota
 from hub.models import Hub
 from django.contrib import messages
 from geopy.distance import geodesic  # Biblioteca para calcular a distância entre coordenadas
@@ -32,9 +32,9 @@ class FilaView(LoginRequiredMixin, TemplateView):
 
         planos = PlanoCarregamento.objects.all()
 
+
         plano_ativo = None
         plano_proximo = None
-        plano_ultimo = None
 
         for plano in planos:
             # Criar os datetime combinando data e hora (ainda sem timezone)
@@ -55,20 +55,29 @@ class FilaView(LoginRequiredMixin, TemplateView):
                 if plano_proximo is None or inicio_datetime < timezone.make_aware(datetime.combine(plano_proximo.data_inicio, plano_proximo.horario_inicio), timezone.get_current_timezone()):
                     plano_proximo = plano
 
-            # Verificar o último plano ocorrido (passado)
-            elif fim_datetime < agora:
-                if plano_ultimo is None or fim_datetime > timezone.make_aware(datetime.combine(plano_ultimo.data_fim, plano_ultimo.horario_fim), timezone.get_current_timezone()):
-                    plano_ultimo = plano
-
         print(f"📅 Plano ativo: {plano_ativo}")
 
         user = self.request.user  # Obtém o usuário requisitante
 
         if plano_ativo:
+            
+            rota = Rota.objects.filter(user=self.request.user, plano=plano_ativo.pk).first()
+
+            if rota:
+                rota.km = round(rota.km/1000, 2)
+                context['rota'] = rota
+            
             senha_da_fila = Senha.objects.filter(user=user, plano=plano_ativo.id).first()
             if senha_da_fila:
                 print(f"🔑 Senha do usuário {senha_da_fila.id}")
                 context['senha'] = senha_da_fila
+        else:
+            if plano_proximo:
+                rota = Rota.objects.filter(user=self.request.user, plano=plano_proximo.pk).first()
+
+                if rota:
+                    rota.km = round(rota.km/1000, 2)
+                    context['rota'] = rota
 
         # Definir a sequência de prioridade dos status
         status_order = Case(
@@ -122,11 +131,18 @@ class FilaView(LoginRequiredMixin, TemplateView):
             context['bancada_senha'] = bancada_senha.bancada
 
 
+        # Conforme minha posicao calcular a % de progresso dos atendimentos
+        if senhas_num > 0:
+            context['progresso'] = (posicao/senhas_num) * 100
+        else:
+            context['progresso'] = 0
+
+
         context['bancadas_operando'] = bancadas_operando
         context['senhas_num'] = senhas_num
         context['posicao'] = posicao
         context['plano_ativo'] = plano_ativo
-        context['plano_proximo_ou_ultimo'] = plano_proximo if plano_proximo else plano_ultimo
+        context['plano_proximo'] = plano_proximo
 
         return context
 

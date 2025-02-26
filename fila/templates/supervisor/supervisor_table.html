@@ -1,36 +1,69 @@
 <tbody id="rota-table">
     {% for item in fila %}
     <tr>
-        <td> {{ item.rota.gaiola|default:"-" }} </td>
-        <td> {{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }}) </td>
-        <td><span class="badge bg-label-success">{{ item.senha.get_status_display }}</span></td>
-        <td>
-            {% if not bancada_plano.senha %} {% if item.senha.status == 2 %}
-            <a href="{% url 'chamar_usuario' item.senha.pk %}" class="btn btn-secondary disabled" aria-disabled="true">Bancada</a> {% else %}
-            <a href="{% url 'patio_interno' item.senha.pk %}" class="btn btn-primary">Interno</a> {% endif %} {% endif %}
-        </td>
-        <td class="dtr-hidden">
-            <div class="d-flex align-items-center">
-                <a href="javascript:;" class="btn btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                    <i class="bx bx-dots-vertical-rounded bx-md"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end m-0">
-                    <a href="{% url 'ausente' item.senha.id %}" class="dropdown-item">
-                        Ausente
-                    </a>
-                    <a href="{% url 'imprevisto' item.senha.id %}" class="dropdown-item">
-                        Imprevisto
-                    </a>
-                    <a href="{% url 'expulsar' item.senha.id %}" class="dropdown-item">
-                        Expulsar
-                    </a>
-                </div>
-            </div>
-        </td>
+    <td>{{ item.rota.gaiola|default:"-" }}</td>
+    <td>{{ item.first_name }} {{ item.last_name }} ({{ item.shopee_id }})</td>
+    <td>{{ item.senha.horario_criacao|date:"h:i" }}</td>
+    <td>
+        <span class="badge bg-label-success">
+        {{ item.senha.get_status_display }}
+        </span>
+    </td>
+    <td>
+        {% if not bancada_plano.senha %}
+        {% if item.senha.status == 2 %}
+            <a href="{% url 'chamar_usuario' item.senha.pk %}"
+                class="btn btn-secondary disabled"
+                aria-disabled="true"
+            >
+            Bancada
+            </a>
+        {% else %}
+            <a href="{% url 'patio_interno' item.senha.pk %}"
+                class="btn btn-primary"
+            >
+            Interno
+            </a>
+        {% endif %}
+        {% endif %}
+    </td>
+    <td class="dtr-hidden">
+        <div class="d-flex align-items-center">
+        <a
+            href="javascript:;"
+            class="btn btn-icon dropdown-toggle hide-arrow"
+            data-bs-toggle="dropdown"
+        >
+            <i class="bx bx-dots-vertical-rounded bx-md"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end m-0">
+            <a
+            href="{% url 'ausente' item.senha.id %}"
+            class="dropdown-item"
+            >
+            Ausente
+            </a>
+            <a
+            href="{% url 'imprevisto' item.senha.id %}"
+            class="dropdown-item"
+            >
+            Imprevisto
+            </a>
+            <a
+            href="{% url 'expulsar' item.senha.id %}"
+            class="dropdown-item"
+            >
+            Expulsar
+            </a>
+        </div>
+        </div>
+    </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="6" class="alert alert-warning text-center">Nenhuma senha na fila.</td>
+    <td colspan="6" class="alert alert-warning text-center">
+        Nenhuma senha na fila.
+    </td>
     </tr>
     {% endfor %}
 </tbody>

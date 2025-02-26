@@ -3,94 +3,182 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Fila de Carregamento{% endblock %}
+{% block title %}Fila de Carregamento{% endblock %} 
 
 {% block content %}
 
-<!-- {% if bancada_senha %}
-<div class="container text-center mt-5">
-    <h2 class="text-primary">Sua senha foi chamada</h2>
-    <p class="text-muted">Dirija-se à bancada <strong>{{ bancada_senha }}</strong> para ser atendido.</p>
-</div>
-{% endif %} -->
-
-<div class="container text-center mt-5">
+<div class="card p-4 col-12 col-lg-6 card-separator">
+    <h5 class="mb-2">Bem-vindo de volta,<span class="h4"> {{ user.first_name }} 👋🏻</span></h5>
+    <div class="col-12 col-lg-10">
+        <p>Abaixo você pode visualizar os dados da sua próxima rota.</p>
+    </div>
     {% if plano_ativo %}
-    {% elif plano_proximo_ou_ultimo %}
-        <p>Não há um plano ativo no momento.</p>
-        {% if plano_proximo_ou_ultimo.data_inicio >= today %}
-            <p>O próximo plano acontecerá em {{ plano_proximo_ou_ultimo.data_inicio }} às {{ plano_proximo_ou_ultimo.horario_inicio }}</p>
+      {% if plano_ativo %}
+        <h5 class="text-primary">Informações do plano de carregamento ativo:</h5>
+        <div class="row col-12 col-lg-12">
+            <div class="col-5 col-lg-5 mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-calendar bx-lg"></i></span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-nowrap">{{ plano_ativo.data_inicio|date:"d M y" }}</h6>
+                        <small>Iniciou às {{ plano_ativo.horario_inicio }}</small>
+                    </div>
+                </div>
+            </div>
+            {% if rota %}
+            <div class="col-7 col-lg-7 flex-wrap">
+                <div class="d-flex align-items-center">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-car bx-lg"></i></span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-nowrap">Gaiola {{ rota.gaiola }}</h6>
+                        <small>{{ rota.cidade }} ({{ rota.km }}Km)</small>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% elif not plano_ativo %}
+        {% if plano_proximo %}
+        <h5 class="text-primary">Não há um plano ativo no momento. Próximo plano em breve.</h5>
+        <div class="row col-12 col-lg-4">
+            <div class="col-5 col-lg-5 mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-calendar bx-lg"></i></span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-nowrap">{{ plano_proximo.data_inicio|date:"d M y" }}</h6>
+                        <small>Inicia as {{ plano_proximo.horario_inicio }}</small>
+                    </div>
+                </div>
+            </div>
+            {% if rota %}
+            <div class="col-7 col-lg-7 flex-wrap">
+                <div class="d-flex align-items-center">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-car bx-lg"></i></span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 text-nowrap">Gaiola {{ rota.gaiola }}</h6>
+                        <small>{{ rota.cidade }} ({{ rota.km }}Km)</small>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         {% else %}
-            <p>O último plano aconteceu em {{ plano_proximo_ou_ultimo.data_fim }} às {{ plano_proximo_ou_ultimo.horario_fim }}</p>
+        <div class="mt-5">
+            <h2 class="text-primary">Não há planos cadastrados.</h2>
+        </div>
         {% endif %}
-    {% else %}
-        <p>Não há planos cadastrados.</p>
-    {% endif %}
-    
-    {% if senha %}
-        {% if senha.status == 1 %}
-            <div class="bs-toast toast fade show bg-success" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <i class="bx bx-bell me-2"></i>
-                    <div class="me-auto fw-medium">Senha</div>
-                </div>
-                <div class="toast-body">
-                    Senha gerada com sucesso, aguarde ser chamado para o pátio interno!
-                </div>
-            </div>
-        {% elif senha.status == 2 %}
-            <div class="col-md-12 col-xxl-4 mb-6">
-                <div class="bs-toast toast fade show bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <i class="bx bx-bell me-2"></i>
-                        <div class="me-auto fw-medium">Pátio Interno</div>
-                    </div>
-                    <div class="toast-body">
-                        Você foi chamado para o pátio interno, entre e aguarde!
-                    </div>
-                </div>
-            </div>
-        {% elif senha.status == 3 %}
-            <div class="col-md-12 col-xxl-4 mb-6">
-                <div class="bs-toast toast fade show bg-success" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <i class="bx bx-bell me-2"></i>
-                        <div class="me-auto fw-medium">Hora de carregar!</div>
-                    </div>
-                    <div class="toast-body">
-                        Dirija-se à <strong>{{ bancada_senha }}</strong>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-        {% if senha.status != 3 and senha.status != 5 and senha.status != 7 %}
-            <div class="col-md-12 col-xxl-4 mb-6">
-                <div class="card h-100">
-                    <div class="d-flex align-items-end row">
-                        <div class="col-7">
-                            <div class="card-body">
-                                <p class="mt-3">Sua posição na fila: <strong>{{ posicao }}</strong></p>
-                                <p class="mt-3">Bancadas operando: <strong>{{ bancadas_operando }}</strong></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-    {% endif %}
-
-    {% if plano_ativo and not senha %}
-        <a href="{% url 'fila_entrar' %}">
-            <div class="row mt-4">
-                <div class="d-grid gap-2 col-lg-6 mx-auto">
-                    <button class="btn btn-primary btn-lg" type="button" onclick="entrarNaFila()">Gerar Senha</button>
-                </div>
-            </div>
-        </a>
-    {% elif plano_ativo and senha.status == 7 %}
-        <p>Você já foi atendido, aguarde a próxima chamada.</p>
     {% endif %}
 </div>
+
+{% if senha %}
+<br> 
+<div class="card p-4 col-12 col-lg-6 card-separator pt-4">
+    <div class="card-header d-flex justify-content-between p-0">
+        <h5 class="card-title">Detalhes da Fila:</h5>
+    </div>
+    <div class="row col-12 col-lg-12">
+      <div class="d-flex justify-content-start" id="salesStats" style="min-height: 318.7px;"></div>
+      <div class="col-6 col-lg-4 mb-4">
+          <div class="d-flex align-items-center">
+              <div class="avatar flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-chair bx-lg"></i></span>
+              </div>
+              <div>
+                  <h6 class="mb-0 text-nowrap">{{ bancadas_operando }}</h6>
+                  <small>Bancada(s) operando</small>
+              </div>
+          </div>
+      </div>
+      <div class="col-6 col-lg-4 mb-4">
+          <div class="d-flex align-items-center">
+              <div class="avatar flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-time-five bx-lg"></i></span>
+              </div>
+              <div>
+                  <h6 class="mb-0 text-nowrap">{{ estimativa_tempo }} minutos</h6>
+                  <small>Tempo estimado</small>
+              </div>
+          </div>
+      </div>
+</div>
+{% elif not senha and plano_ativo %}
+<br>
+<div class="card p-4 col-12 col-lg-6 card-separator pt-4">
+    <div class="d-grid gap-2 col-lg-12">
+          <button class="btn btn-primary btn-lg" type="button" onclick="entrarNaFila()">Gerar Senha</button>
+    </div>
+</div>
+{% endif %}
+{% comment %} 
+{% if plano_ativo %}
+    {% if senha %}
+      {% if senha.status == 1 %}
+      {% elif senha.status == 2 %}
+        <div class="bs-toast toast fade show bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bx bx-bell me-2"></i>
+                <div class="me-auto fw-medium">Pátio Interno</div>
+            </div>
+            <div class="toast-body"> Você foi chamado para o pátio interno, entre e aguarde! </div>
+        </div>
+      {% endif %}
+    {% else %}
+    <div class="d-grid gap-2 col-lg-4">
+        <button class="btn btn-primary btn-lg" type="button" onclick="entrarNaFila()">Gerar Senha</button>
+    </div>
+    {% endif %}
+{% endif %} {% endcomment %}
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var progresso = parseInt('{{ progresso }}') || 0;
+    var posicao = parseInt('{{ posicao }}') || 0;
+    var options = {
+        series: [progresso], 
+        chart: {
+            type: 'radialBar',
+            height: 320,
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    size: '60%'
+                },
+                dataLabels: {
+                    name: {
+                        fontSize: '22px',
+                        offsetY: 10
+                    },
+                    value: {
+                        fontSize: '16px',
+                        style: {
+                            colors: ['#000'],
+                            whiteSpace: 'pre-line'
+                        },
+                        formatter: function(val) {
+                            return posicao + " senhas até sua vez.";
+                        }
+                    }
+                }
+            }
+        },
+        labels: ['Pátio externo'],
+        colors: ['#FF6C0A']
+    };
+    var chart = new ApexCharts(document.querySelector("#salesStats"), options);
+    chart.render();
+});
+</script>
 
 <script>
 function entrarNaFila() {

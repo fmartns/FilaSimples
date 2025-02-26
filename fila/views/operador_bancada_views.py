@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 from django.contrib.auth import get_user_model
-from fila.models import Senha, SenhaHistorico, PlanoCarregamento
+from fila.models import Senha, PlanoCarregamento
 from fila.models import Bancada, BancadaPlano, Rota
 from django.db.models import Case, When, Value, IntegerField
 from django.contrib.auth.decorators import permission_required
@@ -290,12 +290,6 @@ class ChamarUsuarioView(LoginRequiredMixin, TemplateView):
         senha.status = 3  # Mesa (Chamado)
         senha.save()
 
-        # Atualiza o histórico da senha
-        SenhaHistorico.objects.create(
-            senha=senha,
-            horario_chamado=timezone.now()
-        )
-
         # Atribuir a senha à bancada do operador
         bancada_plano = BancadaPlano.objects.filter(operador=request.user, status=1).first()
         if bancada_plano:
@@ -315,11 +309,6 @@ class IniciarCarregamentoView(LoginRequiredMixin, TemplateView):
         senha.status = 5  # Mesa (Carregando)
         senha.save()
 
-        SenhaHistorico.objects.create(
-            senha=senha,
-            horario_comparecimento=timezone.now()
-        )
-
         return redirect('operador_painel')
 
 
@@ -333,11 +322,6 @@ class FinalizarCargaView(LoginRequiredMixin, TemplateView):
         senha.horario_finalizado = timezone.now()
         senha.status = 7  # Carga Finalizada
         senha.save()
-
-        SenhaHistorico.objects.create(
-            senha=senha,
-            horario_finalizado=timezone.now()
-        )
 
         # Liberar a bancada e remover a senha associada
         bancada_plano = BancadaPlano.objects.filter(operador=request.user, status=1).first()
@@ -490,10 +474,8 @@ class SupervisorPainelView(LoginRequiredMixin, TemplateView):
             })
 
         senhas_geradas = Senha.objects.filter(plano=plano_ativo).count()
-        print(" Senhas geradas: ", senhas_geradas)
 
         rotas = Rota.objects.filter(plano=plano_ativo).count()
-        print(" Rotas: ", rotas)
 
         # calcular a porcentagem de senhas geradas em relação as rotas
         if rotas > 0:

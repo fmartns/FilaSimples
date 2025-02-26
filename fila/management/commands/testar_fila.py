@@ -72,7 +72,7 @@ class Command(BaseCommand):
             plano = plano_ativo
 
             # Adicionar status aleatório entre 1 e 8
-            status = random.randint(1, 8)
+            status = random.randint(1, 2)
 
             senha = Senha.objects.create(
                 user=user,
