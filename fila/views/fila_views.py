@@ -71,6 +71,13 @@ class FilaView(LoginRequiredMixin, TemplateView):
             if senha_da_fila:
                 print(f"🔑 Senha do usuário {senha_da_fila.id}")
                 context['senha'] = senha_da_fila
+
+                if senha_da_fila.status == 3:
+                    plano_bancada = BancadaPlano.objects.filter(senha=senha_da_fila, plano=plano_ativo).first()
+                    if plano_bancada:
+                        bancada = plano_bancada.bancada
+                        print(f"🛠️ Bancada do usuário {bancada}")
+                        context['bancada'] = bancada
         else:
             if plano_proximo:
                 rota = Rota.objects.filter(user=self.request.user, plano=plano_proximo.pk).first()

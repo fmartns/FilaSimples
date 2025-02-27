@@ -45,8 +45,8 @@
     {% elif not plano_ativo %}
         {% if plano_proximo %}
         <h5 class="text-primary">Não há um plano ativo no momento. Próximo plano em breve.</h5>
-        <div class="row col-12 col-lg-4">
-            <div class="col-5 col-lg-5 mb-4">
+        <div class="row col-12 col-lg-12">
+            <div class="col-6 col-lg-6 mb-4">
                 <div class="d-flex align-items-center">
                     <div class="avatar flex-shrink-0 me-3">
                         <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-calendar bx-lg"></i></span>
@@ -58,7 +58,7 @@
                 </div>
             </div>
             {% if rota %}
-            <div class="col-7 col-lg-7 flex-wrap">
+            <div class="col-6 col-lg-6 flex-wrap">
                 <div class="d-flex align-items-center">
                     <div class="avatar flex-shrink-0 me-3">
                         <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-car bx-lg"></i></span>
@@ -72,44 +72,50 @@
             {% endif %}
         </div>
         {% else %}
-        <div class="mt-5">
-            <h2 class="text-primary">Não há planos cadastrados.</h2>
-        </div>
+        <h5 class="text-primary">Ainda não há registro de plnos futuros, volte mais tarde.</h5>
         {% endif %}
     {% endif %}
 </div>
 
+<br>
+
 {% if senha %}
-<br> 
-<div class="card p-4 col-12 col-lg-6 card-separator pt-4">
-    <div class="card-header d-flex justify-content-between p-0">
-        <h5 class="card-title">Detalhes da Fila:</h5>
+    {% if senha.status == 1 or senha.status == 2 or senha.status == 3 %}
+    <div class="card p-4 col-12 col-lg-6 card-separator pt-4">
+        <div class="card-header d-flex justify-content-between p-0">
+            <h5 class="card-title">Detalhes da Fila:</h5>
+        </div>
+        <div class="row col-12 col-lg-12">
+        <div class="d-flex justify-content-start" id="salesStats" style="min-height: 318.7px;"></div>
+        <div class="col-6 col-lg-6 mb-4">
+            <div class="d-flex align-items-center">
+                <div class="avatar flex-shrink-0 me-3">
+                    <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-chair bx-lg"></i></span>
+                </div>
+                <div>
+                    <h6 class="mb-0 text-nowrap">{{ bancadas_operando }}</h6>
+                    <small>Bancada(s) operando</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-6 mb-4">
+            <div class="d-flex align-items-center">
+                <div class="avatar flex-shrink-0 me-3">
+                    <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-time-five bx-lg"></i></span>
+                </div>
+                <div>
+                    <h6 class="mb-0 text-nowrap">{{ estimativa_tempo }} minutos</h6>
+                    <small>Tempo estimado</small>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="row col-12 col-lg-12">
-      <div class="d-flex justify-content-start" id="salesStats" style="min-height: 318.7px;"></div>
-      <div class="col-6 col-lg-4 mb-4">
-          <div class="d-flex align-items-center">
-              <div class="avatar flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-chair bx-lg"></i></span>
-              </div>
-              <div>
-                  <h6 class="mb-0 text-nowrap">{{ bancadas_operando }}</h6>
-                  <small>Bancada(s) operando</small>
-              </div>
-          </div>
-      </div>
-      <div class="col-6 col-lg-4 mb-4">
-          <div class="d-flex align-items-center">
-              <div class="avatar flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-time-five bx-lg"></i></span>
-              </div>
-              <div>
-                  <h6 class="mb-0 text-nowrap">{{ estimativa_tempo }} minutos</h6>
-                  <small>Tempo estimado</small>
-              </div>
-          </div>
-      </div>
-</div>
+    {% elif senha.status == 4 %}
+    <div class="alert col-12 col-lg-6 alert-danger alert-dismissible fade show" role="alert">
+    Você está em status de atraso, aguarde até um supervisor realoca-lo na fila.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
 {% elif not senha and plano_ativo %}
 <br>
 <div class="card p-4 col-12 col-lg-6 card-separator pt-4">
@@ -127,7 +133,7 @@
             <div class="toast-header">
                 <i class="bx bx-bell me-2"></i>
                 <div class="me-auto fw-medium">Pátio Interno</div>
-            </div>
+            </div>+     
             <div class="toast-body"> Você foi chamado para o pátio interno, entre e aguarde! </div>
         </div>
       {% endif %}
@@ -166,13 +172,28 @@ document.addEventListener('DOMContentLoaded', function() {
                             whiteSpace: 'pre-line'
                         },
                         formatter: function(val) {
+                            
+                            {% if senha.status == 1 %}
                             return posicao + " senhas até sua vez.";
+                            {% elif senha.status == 2 %}
+                            return posicao + " senhas até sua vez.";
+                            {% elif senha.status == 3 %}
+                            return "Vá para o local.";
+                            {% endif %}
                         }
                     }
                 }
             }
         },
-        labels: ['Pátio externo'],
+        labels: [
+            {% if senha.status == 1 %}
+            'Pátio externo'
+            {% elif senha.status == 2 %}
+            'Pátio interno'
+            {% elif senha.status == 3 %}
+            '{{ bancada.name }}'
+            {% endif %}
+        ],
         colors: ['#FF6C0A']
     };
     var chart = new ApexCharts(document.querySelector("#salesStats"), options);
