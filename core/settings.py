@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'fila',
     'dashboards',
     'hub',
+    'utils',
 
     # Axes
     'axes',
