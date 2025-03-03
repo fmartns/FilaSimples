@@ -1,17 +1,18 @@
-import os
+import requests
 import pandas as pd
+import io
+from django.core.files.storage import default_storage
 from django.db import models
+from django.core.files.base import ContentFile
+# from django.core.files.storage import default_storage # Pylint: disable=import-error
+from django.conf import settings
+#  cannot import name 'get_current_request' from 'django.shortcuts'
 from django.contrib.auth import get_user_model
-from django.db import models
-from django.core.exceptions import ValidationError
+
 from fila.utils import arquivo_planilha_path
 from accounts.models import User
-from django.core.files.base import ContentFile
-import requests
-from django.utils import timezone
 
 User = get_user_model()
-
 
 class PlanoCarregamento(models.Model):
     data_inicio = models.DateField()
@@ -33,9 +34,17 @@ class PlanoCarregamento(models.Model):
         super().save(*args, **kwargs)  # Primeiro salva para garantir que o arquivo está no banco
 
         if self.planilha:
-            # 🔥 O S3 NÃO TEM `path`, então usamos `url`
-            planilha_url = 'http://127.0.0.1:8000/' + self.planilha.url  
-            response = requests.get(planilha_url)
+
+            # fazer um if para verficar se há a config DEFAULT_FILE_STORAGE no settings
+            
+            default_storage_backend = getattr(settings, "DEFAULT_FILE_STORAGE", "")
+
+            if default_storage_backend == "storages.backends.s3boto3.S3Boto3Storage":
+                planilha_url = self.planilha.url  # Pylint: disable=no-member
+            else:
+                planilha_url = 'http://127.0.0.1:8000' + self.planilha.url # pylint: disable=no-member
+
+            response = requests.get(planilha_url) # pylint: disable=no-member
 
             if response.status_code == 200:
                 file_content = ContentFile(response.content)
@@ -53,9 +62,6 @@ class PlanoCarregamento(models.Model):
                 print(f"❌ Erro ao baixar o arquivo do S3: {planilha_url}")
 
     def processar_planilha(self):
-        import io
-        from fila.models import Rota
-        from django.core.files.storage import default_storage
 
         # 📌 Abrindo o arquivo diretamente do S3
         if not self.planilha:
@@ -137,7 +143,7 @@ class Bancada(models.Model):
             ("ativar_bancada", "Pode ativar/desativar bancadas"),
         ]
 
-    def __str__(self):
+    def __str__(self): # pylint: disable=invalid-str-returned
         return self.name
     
 class BancadaPlano(models.Model):

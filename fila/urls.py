@@ -1,14 +1,22 @@
 from django.urls import path
-from .views import plano_views, bancada_views, fila_views, operador_bancada_views
+from .views import bancada_views, fila_views, operador_bancada_views
+
+# Plano de Carregamento
+from .views.plano_views import PlanosView, PlanosList, PlanosAdd, PlanoEdit, PlanoDelete, PlanoPlanilhaDelete
 
 urlpatterns = [
+
+    # Fila
     path('fila/', fila_views.FilaView.as_view(template_name='fila_view.html'), name='fila_view'),
-    path('plano/', plano_views.PlanosView.as_view(template_name="planos_view.html"), name='planos_view'),
-    path('search-planos/', plano_views.search_planos, name='search_planos'),
-    path('plano/adicionar/', plano_views.PlanosAdd.as_view(template_name="plano_add.html"), name='plano_add'),
-    path('plano/editar/<int:plano_id>/', plano_views.PlanoEdit.as_view(template_name="plano_edit.html"), name='plano_edit'),
-    path('plano/deletar/<int:plano_id>/', plano_views.PlanoDelete, name='plano_delete'),
-    path('plano/deletar-planilha/<int:plano_id>/', plano_views.PlanoPlanilhaDelete, name='plano_planilha_delete'),
+
+    # Plano de Carregamento
+    path('plano-de-carregamento/', PlanosView.as_view(template_name = "plano/planos_view.html"), name='planos_view'),
+    path('plano-de-carregamento/search/', PlanosList, name='plano_list'),
+    path('plano-de-carregamento/add/', PlanosAdd.as_view(template_name="plano/plano_add.html"), name='plano_add'),
+    path('plano-de-carregamento/edit/<int:plano_id>/', PlanoEdit.as_view(template_name="plano/plano_edit.html"), name='plano_edit'),
+    path('plano-de-carregamento/delete/<int:plano_id>/', PlanoDelete, name='plano_delete'),
+    path('plano-de-carregamento/planilha/delete/<int:plano_id>/', PlanoPlanilhaDelete, name='plano_planilha_delete'),
+
     path('bancadas/', bancada_views.BancadasView.as_view(template_name="bancadas_view.html"), name='bancadas_view'),
     path('search-bancadas/', bancada_views.search_bancadas, name='search_bancadas'),
     path('bancada/adicionar/', bancada_views.BancadasAdd.as_view(), name='bancada_add'),

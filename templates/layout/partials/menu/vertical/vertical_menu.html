@@ -46,36 +46,40 @@
 
     {% if perms.accounts.view_user %}
     <li class="menu-item">
-      <a href="{% url 'users_view' %}" class="menu-link">
+      <a href="{% url 'usuarios_view' %}" class="menu-link">
         <i class='menu-icon tf-icons bx bxs-user-detail'></i>
         <div data-i18n="Roles">Usuários</div>
       </a>
     </li>
     {% endif %}
-
-    {% if request.user.cargo.id == 3 or user.is_superuser  %}
+    {% if perms.fila.view_painel_supervisor or perms.fila.view_bancada or perms.fila.view_planocarregamento %}
     <li class="menu-item">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon icon-base bx bxs-bar-chart-square"></i>
           <div data-i18n="Roles & Permissions">Supervisão</div>
         </a>
         <ul class="menu-sub">
-
-        <li class="menu-item">
-          <a href="{% url 'supervisor_painel' %}" class="menu-link">
-            <div data-i18n="Permissions">Administração Fila</div>
-          </a>
-        </li>
-        <li class="menu-item">
-            <a href="{% url 'planos_view' %}" class="menu-link">
-              <div data-i18n="Roles">Plano de Carregamento</div>
-            </a>
-          </li>
+          {% if perms.fila.view_painel_supervisor %}
           <li class="menu-item">
-            <a href="{% url 'bancadas_view' %}" class="menu-link">
-              <div data-i18n="Roles">Cadastro de Bancadas</div>
+            <a href="{% url 'supervisor_painel' %}" class="menu-link">
+              <div data-i18n="Permissions">Administração Fila</div>
             </a>
           </li>
+          {% endif %}
+          {% if perms.fila.view_planocarregamento %}
+          <li class="menu-item">
+              <a href="{% url 'planos_view' %}" class="menu-link">
+                <div data-i18n="Roles">Plano de Carregamento</div>
+              </a>
+          </li>
+          {% endif %}
+          {% if perms.fila.view_bancada %}
+          <li class="menu-item">
+              <a href="{% url 'bancadas_view' %}" class="menu-link">
+                <div data-i18n="Roles">Cadastro de Bancadas</div>
+              </a>
+          </li>
+          {% endif %}
         </ul>
     </li>
     {% endif %}

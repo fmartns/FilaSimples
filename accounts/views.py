@@ -86,7 +86,7 @@ def search_users(request):
 
     return render(request, "partials/users_table.html", {"users": page_obj, "paginator": paginator})
 class UserView(LoginRequiredMixin, TemplateView):
-    template_name = "user_view.html"
+    template_name = "usuario.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)  
@@ -127,8 +127,8 @@ class UserView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         user_id = self.kwargs.get("pk")
         user = get_object_or_404(User, id=user_id)
+
         # ✅ SEPARANDO A LÓGICA DE ALTERAÇÃO DE SENHA
-            
         if "new_password1" in request.POST:
             form_senha = SetPasswordForm(user, request.POST)
             if form_senha.is_valid():
@@ -139,6 +139,7 @@ class UserView(LoginRequiredMixin, TemplateView):
                 for error in form_senha.errors.values():
                     messages.error(request, error, extra_tags="senha error")  # 🔹 Erro com tag "error"
                 return redirect("user_security", pk=user.id)
+
         # ✅ SEPARANDO A LÓGICA DE EDIÇÃO DE INFORMAÇÕES DO USUÁRIO
         elif "edit_user" in request.POST:  
             user.first_name = request.POST.get("first_name")
@@ -217,7 +218,7 @@ def SuspenderUser(request, pk):
     user.save()
 
     # Redireciona para a página anterior ou para a lista de usuários caso não tenha referer
-    return redirect(request.META.get('HTTP_REFERER', 'users_view'))
+    return redirect(request.META.get('HTTP_REFERER', 'usuarios_view'))
 
 @login_required
 def AtivarUser(request, pk):
@@ -226,14 +227,14 @@ def AtivarUser(request, pk):
     user.save()
 
     # Redireciona para a página anterior ou para a lista de usuários caso não tenha referer
-    return redirect(request.META.get('HTTP_REFERER', 'users_view'))
+    return redirect(request.META.get('HTTP_REFERER', 'usuarios_view'))
 
 @login_required
 def DeleteUser(request, pk):
     user = get_object_or_404(User, id=pk)
     user.delete()
 
-    return redirect("users_view")
+    return redirect("usuarios_view")
 class TipoVeiculosView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

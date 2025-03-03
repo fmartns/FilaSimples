@@ -5,8 +5,11 @@ urlpatterns = [
     path("login/", views.LoginView.as_view(), name="login"),
     path("signup/", views.SignupView.as_view(), name="signup"),
     path("logout/", views.Logoutview, name="logout"),
-    path("", views.UsersView.as_view(template_name="users_view.html"), name="users_view"),
-    path("user/<int:pk>/", views.UserView.as_view(template_name="partials/user_rotas.html"), name="user_view"),
+
+
+    path("view/", views.UsersView.as_view(template_name="usuarios.html"), name="usuarios_view"),
+    path("user/edit/<int:pk>/", views.UserView.as_view(template_name="partials/user_rotas.html"), name="user_view"),
+    
     path("search-users/", views.search_users, name="search_users"),
     path("user/<int:pk>/security", views.UserView.as_view(template_name="partials/user_security.html"), name="user_security"),
     path("search-user-rota/", views.search_user_rota, name="search_user_rota"),

@@ -6,7 +6,7 @@ urlpatterns = [
     # Dashboard urls
     path('', include("dashboards.urls")),
     path('admin/', admin.site.urls),
-    path('carregamento/', include('fila.urls')),
+    path('', include('fila.urls')),
     path('accounts/', include('accounts.urls')),
     path('hub/', include('hub.urls')),
 ]

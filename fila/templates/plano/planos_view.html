@@ -1,0 +1,239 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Planos de Carregamento{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+        <div class="col-md-3">
+          <label for="entriesSelect">Exibir:</label>
+          <select id="entriesSelect" name="entriesSelect" class="form-select">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="orderingSelect">Ordenação:</label>
+          <select id="orderingSelect" name="orderingSelect" class="form-select">
+              <option value="-data_inicio" selected>Data mais recente</option>
+              <option value="data_mais_antiga">Data mais antiga</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="filterSelect">Filtrar:</label>
+          <select id="filterSelect" name="filterSelect" class="form-select">
+              <option value="todos" selected>Todos</option>
+              <option value="com_planilha">Com Planilha</option>
+              <option value="sem_planilha">Sem Planilha</option>
+          </select>
+        </div>
+
+        <!-- ✅ Botão "Criar Novo Plano" restaurado -->
+        <div class="col-md-3 d-flex align-items-end justify-content-end">
+          <a href="{% url 'plano_add' %}" 
+            class="btn btn-primary {% if not perms.fila.add_planocarregamento %} disabled {% endif %}">
+            <i class="bx bx-plus bx-sm me-1"></i> Criar novo plano
+        </a>
+
+        </div>
+
+    </div>
+  </div>
+
+  <div class="table-responsive text-nowrap mt-4">
+    <table class="table" id="plano-table">
+      <thead>
+        <tr>
+            <th>Abertura de senha</th>
+            <th>Encerramento de senha</th>
+            <th>Planilha</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0" id="planosTableBody">
+        {% for plano in planos %}
+        <tr data-start-date="{{ plano.data_inicio }}" data-end-date="{{ plano.data_fim }}">
+          <td>{{ plano.data_inicio }} {{ plano.horario_inicio }}</td>
+          <td>{{ plano.data_fim }} {{ plano.horario_fim }}</td>
+          {% if plano.planilha %} 
+            <td><span class="badge bg-label-success me-1">Anexado</span></td> 
+          {% else %} 
+            <td><span class="badge bg-label-danger me-1">Não anexado</span></td> 
+          {% endif %}
+          <td>
+            <div class="dropdown">
+              <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'plano_edit' plano.id %}"><i class="bx bx-edit-alt me-1"></i> Editar</a>
+                <a class="dropdown-item" href="{% url 'plano_delete' plano.id %}"><i class="bx bx-trash me-1"></i> Excluir</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+          <div class="dataTables_paginate paging_simple_numbers">
+              <ul class="pagination mb-0">
+                  {% if planos.has_previous %}
+                  <li class="paginate_button page-item previous">
+                      <a href="#" class="page-link pagination-link" data-page="{{ planos.previous_page_number }}">
+                          <i class="bx bx-chevron-left bx-18px"></i>
+                      </a>
+                  </li>
+                  {% else %}
+                  <li class="paginate_button page-item previous disabled">
+                      <a class="page-link"><i class="bx bx-chevron-left bx-18px"></i></a>
+                  </li>
+                  {% endif %}
+
+                  <li class="paginate_button page-item active">
+                      <a href="#" class="page-link">{{ planos.number }}</a>
+                  </li>
+
+                  {% if planos.has_next %}
+                  <li class="paginate_button page-item next">
+                      <a href="#" class="page-link pagination-link" data-page="{{ planos.next_page_number }}">
+                          <i class="bx bx-chevron-right bx-18px"></i>
+                      </a>
+                  </li>
+                  {% else %}
+                  <li class="paginate_button page-item next disabled">
+                      <a class="page-link"><i class="bx bx-chevron-right bx-18px"></i></a>
+                  </li>
+                  {% endif %}
+              </ul>
+          </div>
+      </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.getElementById("planosTableBody");
+    const paginationContainer = document.querySelector(".pagination");
+    const entriesSelect = document.getElementById("entriesSelect");
+    const orderingSelect = document.getElementById("orderingSelect");
+    const filterSelect = document.getElementById("filterSelect");
+
+    function fetchPlanos(page = 1) {
+        let limit = entriesSelect.value;
+        let ordering = orderingSelect.value;
+        let filter = filterSelect.value;
+
+        fetch(`{% url 'plano_list' %}?limit=${limit}&page=${page}&ordering=${ordering}&filter=${filter}`)
+            .then(response => response.json())
+            .then(data => {
+                tableBody.innerHTML = ""; // Limpa a tabela antes de atualizar
+                paginationContainer.innerHTML = ""; // Limpa a paginação antes de atualizar
+
+                // Atualiza os dados da tabela
+                data.planos.forEach(plano => {
+                    let planilhaBadge = plano.tem_planilha 
+                        ? '<span class="badge bg-label-success me-1">Anexado</span>'
+                        : '<span class="badge bg-label-danger me-1">Não anexado</span>';
+
+                    let row = `
+                        <tr>
+                            <td>${plano.data_inicio} ${plano.horario_inicio}</td>
+                            <td>${plano.data_fim} ${plano.horario_fim}</td>
+                            <td>${planilhaBadge}</td>
+                            {% if perms.fila.change_planocarregamento or perms.fila.delete_planocarregamento %}
+                            <td>
+                                <div class="dropdown">
+                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        {% if perms.fila.change_planocarregamento %}
+                                        <a class="dropdown-item" href="${plano.edit_url}">
+                                            <i class="bx bx-edit-alt me-1"></i> Editar
+                                        </a>
+                                        {% endif %}
+                                        {% if perms.fila.delete_planocarregamento %}
+                                        <a class="dropdown-item" href="${plano.delete_url}">
+                                            <i class="bx bx-trash me-1"></i> Excluir
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+                // Atualiza a paginação
+                if (data.pagination.has_previous) {
+                    paginationContainer.innerHTML += `
+                        <li class="paginate_button page-item previous">
+                            <a href="#" class="page-link pagination-link" data-page="${data.pagination.previous_page_number}">
+                                <i class="bx bx-chevron-left bx-18px"></i>
+                            </a>
+                        </li>
+                    `;
+                } else {
+                    paginationContainer.innerHTML += `
+                        <li class="paginate_button page-item previous disabled">
+                            <a class="page-link"><i class="bx bx-chevron-left bx-18px"></i></a>
+                        </li>
+                    `;
+                }
+
+                paginationContainer.innerHTML += `
+                    <li class="paginate_button page-item active">
+                        <a href="#" class="page-link">${data.pagination.current_page}</a>
+                    </li>
+                `;
+
+                if (data.pagination.has_next) {
+                    paginationContainer.innerHTML += `
+                        <li class="paginate_button page-item next">
+                            <a href="#" class="page-link pagination-link" data-page="${data.pagination.next_page_number}">
+                                <i class="bx bx-chevron-right bx-18px"></i>
+                            </a>
+                        </li>
+                    `;
+                } else {
+                    paginationContainer.innerHTML += `
+                        <li class="paginate_button page-item next disabled">
+                            <a class="page-link"><i class="bx bx-chevron-right bx-18px"></i></a>
+                        </li>
+                    `;
+                }
+
+                // Adiciona eventos aos botões de paginação
+                document.querySelectorAll(".pagination-link").forEach(link => {
+                    link.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        fetchPlanos(this.dataset.page);
+                    });
+                });
+            })
+            .catch(error => console.error('Erro na busca:', error));
+    }
+
+    // Atualiza a tabela quando os filters mudam
+    entriesSelect.addEventListener("change", () => fetchPlanos(1));
+    orderingSelect.addEventListener("change", () => fetchPlanos(1));
+    filterSelect.addEventListener("change", () => fetchPlanos(1));
+
+    // Carregar dados ao abrir a página
+    fetchPlanos();
+});
+</script>
+
+
+{% endblock %}
