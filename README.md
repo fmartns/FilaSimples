@@ -40,7 +40,7 @@ A arquitetura é projetada para escalabilidade e estabilidade, com a opção de 
 1. **Clonar o Repositório**
 
    ```bash
-   git clone https://github.com/seu-usuario/queuesync.git
+   git clone https://github.com/fmartns/FilaSimples.git
    cd queuesync
    ```
 
